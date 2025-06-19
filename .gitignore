@@ -1,7 +1,10 @@
-
+# video files
 *.mp4
-*.ipynb
-MotionTracking/Datasets/distances_hand_gestures.csv
-MotionTracking/Datasets/distances_hand_learners.csv
-MotionTracking/Datasets/distances_hand_signers.csv
-MotionTracking/Datasets/distances_learners.csv
+*.avi
+*.mov
+
+# folders
+Miscellaneous/
+QualityChecks/
+Output_Timeseries/
+TS_processed/
