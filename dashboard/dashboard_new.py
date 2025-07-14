@@ -1,70 +1,24 @@
-import base64
-import io
-import dash
-import numpy as np
 import pandas as pd
-from dash import dcc, html
-from dash.dependencies import Input, Output
-import plotly.graph_objects as go
-import plotly.express as px
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+import plotly.graph_objs as go
+import plotly.express as px
+import plotly.colors as pc
+from dash import Dash, dcc, html, Input, Output
+import os
 
-# Initialize app
-app = dash.Dash(__name__)
-server = app.server
-app.title = "Gesture to Sign Trajectory - Variance Explorer"
+app = Dash(__name__)
 
-df = pd.DataFrame()
+df = None
+group_color_map = {}
 
-# Layout
-app.layout = html.Div([
-    html.H1("Gesture to Sign Trajectory - Variance Explorer", style={'textAlign': 'center', 'marginBottom': '30px', 'fontFamily': 'Segoe UI, sans-serif'}),
-    # add subtitle with authors
-    html.H2("Authors: Sarka Kadava and Door Spruijt", style={'textAlign': 'center', 'marginBottom': '30px', 'fontFamily': 'Segoe UI, sans-serif'}),
-    html.Div([
-        # LEFT COLUMN
-        html.Div([
-            html.Label("Select groups to compare:", style={'fontWeight': 'bold'}),
-            dcc.Dropdown(
-                id='file-selector',
-                options=[
-                    {'label': 'All groups', 'value': 'all_data.csv'},
-                    {'label': 'Gesture vs sign', 'value': 'gesture_sign.csv'},
-                    {'label': 'Native signs vs L2 signs', 'value': 'native_l2.csv'}
-                ],
-                placeholder='Select a file',
-                style={'marginBottom': '20px'}
-            ),
-            html.Div(id='file-info', style={'marginBottom': '20px', 'fontStyle': 'italic'}),
-            dcc.Graph(id='scree-plot', style={'height': '500px'}),
-            dcc.Graph(id='pca-plot', style={'height': '500px'}),
-        ], style={'flex': '1', 'padding': '8px'}),
+file_options = {
+    "sampled_all_250_cleanforPCA.csv": "All groups",
+    "sampled_GS_df_250_cleanforPCA.csv": "Gesturer vs Signer",
+    "sampled_NN_df_250_cleanforPCA.csv": "L2 Signer vs Native Signer"
+}
 
-        # RIGHT COLUMN
-        html.Div([
-            html.Label("Select Feature 1:"),
-            dcc.Dropdown(id='feature1-dropdown', style={'marginBottom': '10px'}),
-            html.Label("Select Feature 2:"),
-            dcc.Dropdown(id='feature2-dropdown', style={'marginBottom': '20px'}),
-
-            dcc.Graph(id='correlation-plot', style={'height': '450px'}),
-            dcc.Graph(id='boxplot1', style={'height': '400px'}),
-            dcc.Graph(id='boxplot2', style={'height': '400px'}),
-        ], style={'flex': '1', 'padding': '8px', 'minWidth': '300px'}),
-    ], style={'display': 'flex', 'flexDirection': 'row', 'flexWrap': 'wrap', 'fontFamily': 'Segoe UI, sans-serif', 'padding': '20px'})
-])
-
-# Helper to remove outliers
-def remove_outliers(df, feature):
-    Q1 = df[feature].quantile(0.25)
-    Q3 = df[feature].quantile(0.75)
-    IQR = Q3 - Q1
-    lower = Q1 - 1.5 * IQR
-    upper = Q3 + 1.5 * IQR
-    return df[(df[feature] >= lower) & (df[feature] <= upper)]
-
-# Scree plot and PCA
 def get_scree_plot(df_features):
     scaler = StandardScaler()
     standardized_data = scaler.fit_transform(df_features)
@@ -83,136 +37,188 @@ def get_scree_plot(df_features):
     fig.update_layout(title="Cumulative Explained Variance", xaxis_title="Principal Component", yaxis_title="Cumulative Variance")
     return fig, pca, standardized_data
 
-# Handle file upload
+def get_top_features_text(pca, feature_names):
+    lines = ["Top 5 Highest Feature Loadings per 3 PCs:\n"]
+    for i in range(3):
+        component = pca.components_[i]
+        top_indices = np.argsort(np.abs(component))[-5:][::-1]
+        top_features = [feature_names[idx] for idx in top_indices]
+        lines.append(f"PC{i+1}: {', '.join(top_features)}")
+    return lines
+
+app.layout = html.Div([
+    # Header section — blue background (#1b29a8)
+    html.Div([
+    html.H1("PCA Visualizer Dashboard", style={'textAlign': 'center', 'marginBottom': '0px', 'color': 'white'}),
+    html.P([
+        "Authors: ",
+        "Sarka Kadava", html.Sup("1"), ", ",
+        "Door Spruijt", html.Sup("2")
+    ], style={'textAlign': 'center', 'marginTop': '2px', 'marginBottom': '0px', 'color': 'white'}),
+    html.P([
+        html.Sup("1"), "Leibniz Center General Linguistics ",  html.Sup("2"), "University of Cologne"
+    ], style={'textAlign': 'center', 'marginTop': '0px', 'marginBottom': '0px', 'fontStyle': 'italic', 'fontSize': '14px', 'color': 'white'}),
+], style={'backgroundColor': '#1b29a8', 'padding': '15px 0'}),
+
+    # Body section — orange background (#e6927b) with top padding to create the gap
+    html.Div([
+        html.Div(
+    dcc.Dropdown(
+        id='file-selector',
+        options=[{'label': name, 'value': fname} for fname, name in file_options.items()],
+        placeholder='Select groups to compare',
+        style={'width': '300px'}  # set your preferred width
+    ),
+    style={'display': 'flex', 'justifyContent': 'center', 'marginTop': '15px', 'marginBottom': '15px', 'width': '90%'}
+),
+
+        html.Div([
+            dcc.Graph(id='pca-3d', style={'width': '65%', 'height': '800px', 'display': 'inline-block'}),
+            dcc.Graph(id='scree-plot', style={'width': '35%', 'height': '600px', 'display': 'inline-block'}),
+        ], style={'display': 'flex', 'justifyContent': 'center', 'alignItems': 'flex-start', 'marginTop': '20px'}),
+
+        html.Div(id='top-features-text', style={'whiteSpace': 'pre-line', 'padding': '10px', 'textAlign': 'center', 'fontWeight': 'bold'}),
+
+        html.Div([
+            html.H2("Choose a feature to plot", style={'color': 'white', 'marginBottom': '10px'}),
+            dcc.Dropdown(id='feature1-dropdown', style={'width': '60%', 'margin': '0 auto'}),
+            dcc.Graph(id='boxplot1', style={'width': '90%', 'margin': '20px auto'})
+        ], style={
+    'backgroundColor': '#1b29a8',
+    'padding': '20px',
+    'marginTop': '20px',
+    'textAlign': 'center',
+    'width': '65%',
+    'margin': '0 auto',
+})
+    ], style={'backgroundColor': '#e6927b', 'minHeight': '100vh', 'paddingTop': '30px', 'paddingBottom': '30px'})
+])
+
+
 @app.callback(
-    [Output('file-info', 'children'),
-     Output('feature1-dropdown', 'options'),
-     Output('feature2-dropdown', 'options'),
-     Output('scree-plot', 'figure'),
-     Output('pca-plot', 'figure')],
+    Output('pca-3d', 'figure'),
+    Output('scree-plot', 'figure'),
+    Output('feature1-dropdown', 'options'),
+    Output('top-features-text', 'children'),
     Input('file-selector', 'value')
 )
-
 def load_selected_file(filename):
-    global df
-    global group_color_map
+    global df, group_color_map
 
     if filename is None:
-        return "Select a CSV file from the dropdown", [], [], go.Figure(), go.Figure()
+        return go.Figure(), go.Figure(), [], ""
 
     df = pd.read_csv(f'assets/{filename}')
-
-    # colors
-    unique_groups = df[df.columns[-1]].unique()
-    color_palette = px.colors.qualitative.Plotly
-    group_color_map = {
-        group: color_palette[i % len(color_palette)]
-        for i, group in enumerate(sorted(unique_groups))
-    }
-
     feature_cols = df.columns[:-1]
     label_col = df.columns[-1]
 
     scree_fig, pca, scaled_data = get_scree_plot(df[feature_cols])
-
     X_pca = pca.transform(scaled_data)
     coeff = pca.components_.T
-    top_n = 10
+
+    top_n = 5
     top_vars = set()
     for i in range(3):
         top_vars.update(np.argsort(np.abs(pca.components_[i]))[-top_n:])
     selected_vars = sorted(list(top_vars))
 
-    if df[label_col].dtype == 'object' or df[label_col].dtype.name == 'category':
-        y = LabelEncoder().fit_transform(df[label_col])
-    else:
-        y = df[label_col]
+    y = df[label_col].values
+    unique_labels = np.unique(y)
+    color_map = {label: pc.qualitative.Set1[i % len(pc.qualitative.Set1)] for i, label in enumerate(unique_labels)}
+
+   # Filter points where PC3 <= 15
+    valid_idx = X_pca[:, 2] <= 15
+    X_pca_filtered = X_pca[valid_idx]
+    y_filtered = y[valid_idx]
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter3d(
-        x=X_pca[:, 0], y=X_pca[:, 1], z=X_pca[:, 2],
-        mode='markers',
-        marker=dict(size=5, color=y, colorscale='Viridis'),
-        name='Samples',
-        text=[f"Sample {i}" for i in range(len(X_pca))],
-        showlegend=False
-    ))
 
-    scale = 100
+    # Scatter points with consistent colors (filtered)
+    for label in unique_labels:
+        indices = np.where(y_filtered == label)
+        fig.add_trace(go.Scatter3d(
+            x=X_pca_filtered[indices, 0].flatten(),
+            y=X_pca_filtered[indices, 1].flatten(),
+            z=X_pca_filtered[indices, 2].flatten(),
+            mode='markers',
+            marker=dict(size=5, color=color_map[label], opacity=0.7),
+            name=str(label),
+            text=[f"Sample {i}" for i in indices[0]],
+            showlegend=True
+        ))
+
+    # Centroids based on filtered data
+    for label in unique_labels:
+        indices = np.where(y_filtered == label)
+        centroid = X_pca_filtered[indices].mean(axis=0)
+        fig.add_trace(go.Scatter3d(
+            x=[centroid[0]], y=[centroid[1]], z=[centroid[2]],
+            mode='markers+text',
+            marker=dict(size=6, color=color_map[label], symbol='x', line=dict(color='black', width=8)),
+            showlegend=False
+        ))
+
+    # Feature vectors (PCA loadings) — always full scale, no filtering here
+    scale = 10
     for i in selected_vars:
         fig.add_trace(go.Scatter3d(
             x=[0, coeff[i, 0] * scale],
             y=[0, coeff[i, 1] * scale],
             z=[0, coeff[i, 2] * scale],
             mode='lines',
-            line=dict(color='red', width=4),
+            line=dict(color='black', width=4),
             hovertext=df.columns[i],
             name='',
             showlegend=False
         ))
 
-    fig.update_layout(title="3D PCA Biplot",
-                      scene=dict(xaxis_title='PC1', yaxis_title='PC2', zaxis_title='PC3'),
-                      height=800, margin=dict(l=0, r=0, b=0, t=40))
+    # Layout with fixed z-axis limit
+    fig.update_layout(
+        title="3D PCA ~ plots first three principal components and feature vectors",
+        scene=dict(
+            xaxis_title='PC1',
+            yaxis_title='PC2',
+            zaxis_title='PC3',
+            zaxis=dict(range=[None, 15])  # restrict z-axis visible range
+        ),
+        height=800,
+        margin=dict(l=0, r=0, b=0, t=40),
+        legend=dict(itemsizing='constant')
+    )
 
-    options = [{'label': col, 'value': col} for col in feature_cols]
-    return f'Selected: {filename} ({df.shape[0]} rows, {df.shape[1]} columns)', options, options, scree_fig, fig
 
-# Correlation plot
-@app.callback(
-    Output('correlation-plot', 'figure'),
-    Input('feature1-dropdown', 'value'),
-    Input('feature2-dropdown', 'value')
-)
-def update_corr(feature1, feature2):
-    if df.empty or not feature1 or not feature2:
-        return go.Figure()
-    dff = remove_outliers(df, feature1)
-    dff = remove_outliers(dff, feature2)
-    corr = dff[feature1].corr(dff[feature2])
-    fig = px.scatter(dff, x=feature1, y=feature2, trendline="ols",
-                     title=f"Correlation: {corr:.2f}")
-    return fig
 
-# Boxplot 1
+    feature_options = [{'label': col, 'value': col} for col in feature_cols]
+    top_features_text = "\n".join(get_top_features_text(pca, df.columns[:-1]))
+
+    return fig, scree_fig, feature_options, top_features_text
+
 @app.callback(
     Output('boxplot1', 'figure'),
+    Input('file-selector', 'value'),
     Input('feature1-dropdown', 'value')
 )
-def box1(feature):
-    if df.empty or not feature or df.columns[-1] not in df.columns:
+def update_violin_plot(filename, feature):
+    if filename is None or feature is None:
         return go.Figure()
-    dff = remove_outliers(df, feature)
-    return px.violin(
-        dff,
-        x=df.columns[-1],
-        y=feature,
-        points="all",
-        box=True,
-        title=f'{feature} by {df.columns[-1]}',
-        color=df.columns[-1],
-        color_discrete_map=group_color_map
-    )
-# Boxplot 2
-@app.callback(
-    Output('boxplot2', 'figure'),
-    Input('feature2-dropdown', 'value')
-)
 
-def box2(feature):
-    if df.empty or not feature or df.columns[-1] not in df.columns:
-        return go.Figure()
-    dff = remove_outliers(df, feature)
-    return px.violin(
-        dff,
-        x=df.columns[-1],
-        y=feature,
-        points="all",
-        box=True,
-        title=f'{feature} by {df.columns[-1]}',
-        color=df.columns[-1],
-        color_discrete_map=group_color_map
-    )
+    df = pd.read_csv(f'assets/{filename}')
+    group_col = df.columns[-1]
+
+    # Tukey filtering
+    cleaned_df = pd.DataFrame()
+    for group, subset in df.groupby(group_col):
+        Q1 = subset[feature].quantile(0.25)
+        Q3 = subset[feature].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        filtered = subset[(subset[feature] >= lower) & (subset[feature] <= upper)]
+        cleaned_df = pd.concat([cleaned_df, filtered], ignore_index=True)
+
+    fig = px.violin(cleaned_df, y=feature, x=group_col, color=group_col, box=True, points="all",
+                    title=f'{feature} by Group')
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
