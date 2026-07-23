@@ -1,0 +1,194 @@
+english,german,status,note
+A-LITTLE,WENIG,matched,
+A-LOT,VIEL,matched,
+ACCORDEON,AKKORDEON,matched,
+ADDICTION,,no_match,no German equivalent found (Sucht not in list)
+ADDRESS,,no_match,Adresse not in list
+AMBULANCE,KRANKENWAGEN,matched,
+APPLE,APFEL,matched,
+ARCHITECTURE,,no_match,Architektur not in list
+ARM,ARM,matched,
+AUNT,,no_match,Tante not in list
+AUTOMATICALLY,,no_match,"Automatisch not in list; SELBSTVERSTAENDLICH = of course, probably different concept"
+BABY,BABY,matched,
+BAD,SCHLECHT,matched,
+BAPTISM,,no_match,Taufe not in list
+BASKETBALL,BASKETBALL,matched,
+BEARD,BART,matched,
+BEER,BIER,matched,
+BILLIARD,BILLIARD,matched,
+BIRD,VOGEL,matched,
+BIRTH,GEBURT,matched,
+BOOK,BUCH,matched,
+BUTTERFLY,SCHMETTERLING,matched,
+CALCULATOR,TASCHENRECHNER,matched,
+CAMEL,KAMEL,matched,
+CAPPUCINO,,check,Cappuccino not in list; KAFFEE exists but is a different concept - verify
+CAR,AUTO,matched,
+CENTRAL,ZENTRAL,matched,
+CITY,,no_match,Stadt not in list
+CLOTHES,KLEIDUNG,matched,
+COAT,MANTEL,matched,
+COLD,KALT,matched,
+COMMUNICATION,KOMMUNIKATION,matched,
+CURIOUS,NEUGIERIG,matched,
+CURTAIN,VORHANG,matched,"filename has trailing space: ""VORHANG "" - strip concepts in parser"
+DAUGHTER,,no_match,Tochter not in list
+DAY,,no_match,Tag not in list
+DEVIL,TEUFEL,matched,
+DRESS,KLEID,matched,
+DRINKINGWATER,TRINKWASSER,matched,
+EGG,EI,matched,
+ELECTRICIAN,,no_match,Elektriker not in list
+EMPLOYED,,check,no direct match; ARBEITEN (to work) or BERUF (profession) possible - verify against stimuli
+EXPERIMENT,,no_match,Experiment not in list
+EYE,AUGE,matched,
+FATHER,,no_match,Vater not in list
+FENCE,ZAUN,matched,
+FIRE,FEUER,matched,
+FLOOR,BODEN,matched,
+FRAUD,,check,Betrug not in list; LUEGEN (to lie) possible but likely different concept
+GLASSES,BRILLE,matched,
+GOAL,ZIEL,matched,
+HAIR,HAARE,matched,
+HAMMER,HAMMER,matched,
+HANDS,HAENDE,matched,
+HAT,HUT,matched,
+HILL,HUEGEL,matched,
+HOBBIES,,no_match,Hobby not in list
+HOCKEY,HOCKEY,matched,
+HORSE,PFERD,matched,
+HOT,HEISS,matched,
+ID,AUSWEIS,matched,note: ID and ID-CARD both map to AUSWEIS
+ID-CARD,AUSWEIS,matched,note: ID and ID-CARD both map to AUSWEIS
+IDEA,IDEE,matched,
+INTERNET,,no_match,Internet not in list
+LAND,,check,ambiguous; LAND (country?) not in list - INSEL/LANDSCHILDKROETE are different concepts
+LAPTOP,LAPTOP,matched,
+LECTURER,,no_match,Dozent not in list
+LEGS,BEINE,matched,
+LETTER,BRIEF,matched,
+LIGHTNING,BLITZ,matched,
+MAGAZINE,ZEITSCHRIFT,matched,
+MARRIED,VERHEIRATET,matched,
+MASSAGE,MASSAGE,matched,
+MEAT,,no_match,Fleisch not in list
+MILK,MILCH,matched,
+MIXER,MIXER,matched,
+MOBILE-PHONE,HANDY,check,HANDY chosen; SMARTPHONE and TELEFON also in list - verify which matches the stimuli
+MODERATOR,,no_match,Moderator not in list
+MONKEY,AFFE,matched,
+MONTH,,no_match,Monat not in list
+MOON,MOND,matched,
+MOSQUITO,MUECKE,matched,
+MOTORBIKE,MOTORRAD,matched,
+NO-MATTER,EGAL,matched,
+NOSE,NASE,matched,
+PAN,PFANNE,matched,
+PARK,PARKEN,check,English could be noun (park) or verb; PARKEN (to park) is the only candidate
+PARTICIPANT,,check,"Teilnehmer not in list; MITGLIED (member, also misspelled MITGLEID) possible - verify"
+PARTY,PARTY,matched,
+PAST,VERGANGENHEIT,matched,
+PASTOR,PRIESTER,check,PRIESTER (priest) closest; MOENCH/NONNE are different clergy concepts
+PENGUIN,PINGUIN,matched,
+PEPPER,PFEFFER,matched,
+PHONE-CALL,TELEFONANRUF,matched,
+PHOTOGRAPHY,FOTOGRAFIE,matched,
+PIANO,KLAVIER,matched,
+PILOT,PILOT,matched,
+PLUG,STECKER,matched,
+PRISON,GEFAENGNIS,matched,
+PROFESSOR,,no_match,Professor not in list
+PYRAMID,PYRAMIDE,matched,
+QUESTION,FRAGE,matched,
+SANDWICH,SANDWICH,matched,
+SAW,SAEGE,matched,
+SAXOPHONE,SAXOPHON,matched,
+SCARF,SCHAL,matched,
+SCREWDRIVER,SCHRAUBENZIEHER,matched,
+SHAMPOO,SCHAMPOO,matched,
+SHEEP,,no_match,Schaf not in list
+SNAIL,SCHNECKE,matched,
+SNAKE,SCHLANGE,matched,
+SOAP,SEIFE,matched,
+SOCKS,SOCKEN,matched,
+SPIDER,SPINNE,matched,
+SPOON,LOEFFEL,matched,
+STAIRS,TREPPE,matched,
+STORE,,check,Laden/Geschaeft not in list; SUPERMARKT already used by SUPERMARKET
+STUDENT,,no_match,Student not in list
+SUBTITLES,UNTERTITEL,matched,
+SUITCASE,KOFFER,matched,
+SUPERMARKET,SUPERMARKT,matched,
+SURPRISED,UEBERRASCHT,matched,
+TABLE,,no_match,Tisch not in list (only TISCHTENNIS)
+TABLE-TENNIS,TISCHTENNIS,matched,
+TEA,TEE,matched,
+TENNIS,TENNIS,matched,
+TIME,ZEIT,matched,
+TO-ADVISE,,check,beraten not in list; BESCHEID GEBEN (to notify) possible - verify
+TO-ANNOY,,no_match,aergern/nerven not in list
+TO-ARGUE,STREITEN,check,STREITEN (quarrel) chosen; ARGUMENTIEREN (reason/argue) also in list - verify against stimuli
+TO-BREAK,BRECHEN,matched,
+TO-BUY,KAUFEN,matched,
+TO-CLAP,KLATSCHEN,matched,
+TO-COMB,KAEMMEN,matched,
+TO-COOK,KOCHEN,matched,
+TO-COPY,KOPIEREN,matched,
+TO-CRITICIZE,,check,"kritisieren not in list; LAESTERN (badmouth) possible, SCHIMPFEN taken by TO-SCOLD"
+TO-CRY,WEINEN,matched,
+TO-DIE,STERBEN,matched,
+TO-DRAW,ZEICHNEN,matched,
+TO-DRINK,TRINKEN,matched,
+TO-EAT,ESSEN,matched,
+TO-ERASE,AUSRADIEREN,matched,
+TO-EXPLOIT,,check,ausbeuten not in list; VERSCHWENDEN (to waste) is likely a different concept
+TO-FISH,ANGELN,matched,
+TO-HEAR,HOEREN,matched,
+TO-INVITE,EINLADEN,matched,
+TO-IRON,BUEGELN,matched,
+TO-ITCH,JUCKEN,matched,
+TO-JUGGLE,JONGLIEREN,matched,
+TO-KICK,TRETEN,matched,
+TO-LIFT,HEBEN,matched,
+TO-LIVE,WOHNEN,matched,
+TO-MOVE,,check,"ambiguous; if = relocate use UMZIEHEN, but UMZIEHEN assigned to TO-MOVE-HOUSES; bewegen not in list"
+TO-MOVE-HOUSES,UMZIEHEN,matched,
+TO-OBSERVE,BEOBACHTEN,matched,
+TO-ORGANIZE,ORGANISIEREN,matched,
+TO-PAY,BEZAHLEN,matched,
+TO-PICK,PFLUECKEN,matched,
+TO-PICK-UP,ABHOLEN,matched,
+TO-PLAY-CARDS,KARTEN,check,KARTEN (cards) is the only candidate; verify it means playing cards in your stimuli
+TO-PROPOSE,VORSCHLAGEN,matched,
+TO-PUKE,KOTZEN,matched,
+TO-PUT-LIPSTICK-ON,LIPPENSTIFT AUFTRAGEN,matched,
+TO-REJECT,ABLEHNEN,matched,
+TO-RUN,RENNEN,matched,
+TO-SAY,SAGEN,matched,
+TO-SCOLD,SCHIMPFEN,matched,
+TO-SEW,NAEHEN,matched,
+TO-SHAVE,RASIEREN,matched,
+TO-SHOWER,DUSCHEN,matched,
+TO-SIT,SITZEN,matched,
+TO-SLEEP,SCHLAFEN,matched,
+TO-SMOKE,RAUCHEN,matched,
+TO-STEAL,KLAUEN,matched,
+TO-STINK,STINKEN,matched,
+TO-SUMMARIZE,,no_match,"zusammenfassen not in list (ZUSAMMENHEFTEN = to staple, different concept)"
+TO-SUPPLY,,check,liefern not in list; UNTERSTUETZEN (to support) possible - verify
+TO-TEACH,,check,unterrichten/lehren not in list; ERKLAEREN (to explain) possible - verify
+TO-TEAR,ZERREISSEN,check,both ZERREISSEN and ZERREIẞEN (with ẞ) exist in filenames - normalize ẞ->SS in parser or map both
+TO-TURN-OFF,AUSSCHALTEN,matched,
+TO-WAIT,WARTEN,matched,
+TO-WASH-BODY,KOERPER WASCHEN,matched,
+TO-WASH-FACE,,no_match,Gesicht waschen not in list
+TOMORROW,MORGEN_(nicht_heute),matched,note: MORGEN_(Tageszeit) = morning is a different concept
+UNCLE,,no_match,Onkel not in list
+VIDEO-GAME,VIDEOSPIEL,matched,"note: VIDEO-GAME and VIDEOGAME are duplicate English spellings, both map here"
+VIDEOGAME,VIDEOSPIEL,matched,note: duplicate spelling of VIDEO-GAME
+WAR,KRIEG,matched,
+WEEK,,no_match,Woche not in list
+WHEELCHAIR,ROLLSTUHL,matched,
+WINE,WEIN,matched,
+WITNESS,,no_match,Zeuge not in list
