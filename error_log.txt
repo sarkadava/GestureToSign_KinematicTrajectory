@@ -1,2 +1,9 @@
-IP16_02_SEIFE_body_world fileID not found
-IP16_02_UMZIEHEN_body_world fileID not found
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP10_01_ZERREIẞEN\IP10_01_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP10_02_ZERREIẞEN\IP10_02_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP11_01_ZERREIẞEN\IP11_01_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP14_01_ZERREIẞEN\IP14_01_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP14_02_ZERREIẞEN\IP14_02_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP16_02_ZERREIẞEN\IP16_02_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\IP18_01_ZERREIẞEN\IP18_01_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\LP07_01_ZERREIẞEN\LP07_01_ZERREIẞEN_pose.csv 0
+c:\Users\kadava\Documents\Github\GtST_FLESH_KinTrajectory\Sapiens_Output\LP22_01_ZERREIẞEN\LP22_01_ZERREIẞEN_pose.csv 0
