@@ -58,34 +58,10 @@ section 5: which PCs (gross or fine) carry `conventionalization` vs `acquisition
 
 ---
 
-# 0. Export from Python (run once per domain in the PCA notebook)
-
-For **each** domain-specific PCA (gross-only, fine-only), write a file with the
-significant-PC scores + metadata. `clean_df()` drops the participant column (`group`), so
-pull metadata from the pre-clean frame (`sampled_df`), same rows / order.
-
-```python
-def export_pc_scores(pca_obj, x_new, sig_pc_mask, sampled_df, out_name):
-    import os
-    sig_idx = np.where(sig_pc_mask)[0]                      # significant PCs (null AND >=5%)
-    pc_cols = [f"PC{i+1}" for i in sig_idx]
-    scores  = pd.DataFrame(x_new[:, sig_idx], columns=pc_cols)
-    meta = (sampled_df[['group', 'groupID', 'concept']]
-            .reset_index(drop=True)
-            .rename(columns={'group': 'participant'}))
-    assert len(meta) == len(scores), "row mismatch — metadata not aligned with PCA scores!"
-    out = pd.concat([scores, meta], axis=1)
-    out.to_csv(os.path.join(curfolder, 'Datasets', out_name), index=False)
-
-export_pc_scores(pca_GS,   x_new_GS,   sig_pc_GS,   sampled_df, 'pca_scores_all.csv')
-export_pc_scores(pca_GSG,  x_new_GSG,  sig_pc_GSG,  sampled_df, 'pca_scores_gross.csv')
-export_pc_scores(pca_fine, x_new_fine, sig_pc_fine, sampled_df, 'pca_scores_fine.csv')
-```
-
 # 1. Load all three blocks, prefix PC names, merge
 
 ```{r data}
-group_levels <- c("Gesture", "Learners_1", "Learners_2", "Sign")   # ORDER MATTERS (contrasts)
+group_levels <- c("Gesture", "Learner_1", "Learner_2", "Sign")   # ORDER MATTERS (contrasts)
 
 read_domain <- function(path, domain) {
   read_csv(path) %>%
