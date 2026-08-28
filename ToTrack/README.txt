@@ -1,1 +1,0 @@
-Here we store cuted videos for motion tracking

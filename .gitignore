@@ -20,3 +20,4 @@ Output_Timeseries/
 3_collinearity_reduction.ipynb
 5_PC_brms_models (1).Rmd
 5_PC_brms_models.Rmd
+*.rds
