@@ -1,0 +1,67 @@
+project:
+  type: website
+  output-dir: website
+  
+bibliography: Manuscript/references.bib
+csl: "Manuscript/apa.csl"
+website:
+  sidebar:
+    style: "floating"
+    search: true
+    contents:
+      - text: "Home"
+        href: https://sarkadava.github.io/FLESH_Effort/
+        
+      - section: "A. Pre-processing"
+        contents:
+          - 0_Sampling_trials.ipynb
+
+      - section: "B. Motion tracking"
+        contents:
+          - 1_SinglePerson_Pose_Sapiens2.ipynb
+
+      - section: "C. Data processing"
+        contents:
+          - 2_SapiensProcessing.ipynb
+
+      - section: "D. Feature extraction"
+        contents:
+          - 3_FeatureExtract_Sapiens.ipynb
+
+      - section: "E. Analysis"
+        contents:
+          - 4_PCA_featureDimensions_varimax.ipynb
+          - 5_PC_brms_models_varimax.Rmd
+
+  navbar:
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            href:  https://github.com/sarkadava/FLESH_Effort
+          - text: Report a Bug
+            href:  https://github.com/sarkadava/FLESH_Effort/issues
+
+metadata:
+  crossref:
+    chapters: true
+
+format:
+  html:
+    theme: cosmo
+    highlight-style: github
+    css: Manuscript/style.css
+    max-width: 1300px
+
+# Default execution: run and show code in HTML
+execute:
+  enabled: false
+  freeze: false
+  warning: false
+  message: false
+  cache: false                
+
+
+
+
+

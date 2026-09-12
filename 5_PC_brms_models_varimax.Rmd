@@ -1,0 +1,515 @@
+---
+title: "Exploratory Analysis II: Bayesian multilevel models on PCA / rotated dimensions"
+subtitle: "One fit per component, comparisons extracted with emmeans — run for unrotated PCs and varimax RCs"
+author: "gesture-to-sign project"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE
+)
+library(tidyverse)
+library(brms)
+library(tidybayes)
+library(bayesplot)
+library(emmeans)
+library(posterior)
+options(mc.cores = parallel::detectCores())
+dir.create("models", showWarnings = FALSE)
+```
+
+# What this notebook does
+
+The PCA (`4_PCA_featureDimensions`) is descriptive and **unsupervised** — it never sees
+`groupID`, so modelling its *scores* by group is not circular (unlike modelling an LD
+score, which was built from the labels).
+
+We fit **one model per component with neutral cell-means coding** (`0 + groupID`)
+and pull every comparison of interest **after the fit with `emmeans`**. Two reasons:
+
+We  run the whole pipeline **twice**: `basis = "pca"` (unrotated) and
+`basis = "varimax"` (rotated). Rotation is not relabelling — RC1 is a different axis from
+PC1 — so scores, loadings, and component names all switch to the RC basis together.
+
+Comparisons extracted (all in SD units, net of speaker & item):
+
+- **gesture vs sign** — `conventionalization` (Gesture vs the three signing conditions) and,
+  narrowly, `gesture_vs_native` (Gesture vs Sign).
+- **learner1 – learner2 – signer progression** — `naive_vs_beginner` (L1 vs L2,
+  within-subject), `beginner_vs_native` (L2 vs Sign), and a `progression_linear` /
+  `progression_quad` trend across the three stages.
+
+---
+
+# 1. Config & helpers
+
+```{r config}
+group_levels <- c("Gesture", "Learner_1", "Learner_2", "Sign")
+
+# ---- comparisons: weights in group_levels order (Gesture, Learner_1, Learner_2, Sign) ----
+# fractional weights => each estimate is a directly interpretable mean difference in SD units.
+comparisons <- list(
+  # "gesture vs sign"
+  conventionalization = c( -1, 1/3, 1/3, 1/3),  # Gesture - mean(L1, L2, Sign)
+  gesture_vs_native   = c( -1,    0,    0,   1),   # Gesture - Sign  (narrow reading)
+  # "learner1 - learner2 - signer" progression
+  naive_vs_beginner   = c( 0,    -1,   1,    0),   # L1 - L2  (within-subject)
+  learner_vs_native = c(0, -1/2, -1/2, 1),
+  beginner_vs_native  = c( 0,    0,    -1,   1)   # L2 - Sign # THIS SHOULD MAYBE BE (mean L1;L2 vs sign)
+)
+
+pr <- c(
+  prior(normal(0, 1),   class = "b"),      # group means (cell-means coding)
+  prior(exponential(1), class = "sd"),
+  prior(exponential(1), class = "sigma")
+)
+```
+
+```{r helpers}
+# --- read one domain's score file, prefix component columns with the domain ---
+# handles both PC (unrotated) and RC (varimax) component names
+read_scores <- function(basis, domain) {
+  suf  <- if (basis == "varimax") "_varimax" else ""
+  path <- file.path("Datasets", sprintf("pca_scores_%s%s.csv", domain, suf))
+  if (!file.exists(path)) return(NULL)
+  read_csv(path, show_col_types = FALSE) %>%
+    rename_with(~ paste0(domain, "_", .x), matches("^(PC|RC)[0-9]+$"))
+}
+
+# --- build the modelling frame for a basis: merge all/gross/fine, factor, z-score ---
+build_d <- function(basis) {
+  blocks <- map(c("all", "gross", "fine"), ~ read_scores(basis, .x))
+  if (any(map_lgl(blocks, is.null))) return(NULL)   # a domain file missing -> skip basis
+  names(blocks) <- c("all", "gross", "fine")
+
+  comp_cols <- unlist(map(names(blocks), function(dm)
+    grep(sprintf("^%s_(PC|RC)[0-9]+$", dm), names(blocks[[dm]]), value = TRUE)))
+
+  key <- c("participant", "groupID", "concept")
+  d <- reduce(blocks, full_join, by = key)
+
+  d <- d %>%
+    mutate(groupID     = factor(groupID, levels = group_levels),
+           participant = factor(participant),
+           concept     = factor(concept)) %>%
+    mutate(across(all_of(comp_cols), ~ as.numeric(scale(.)), .names = "{.col}_z"))
+
+  # NA report from the full joins (tokens not shared across all/gross/fine)
+  na_rows <- d %>% summarise(across(all_of(comp_cols), ~ sum(is.na(.)))) %>%
+    pivot_longer(everything(), names_to = "component", values_to = "n_NA") %>%
+    filter(n_NA > 0)
+  if (nrow(na_rows)) { message("NA scores after join (", basis, "):"); print(na_rows) }
+
+  stopifnot(all(levels(d$groupID) == group_levels))
+  list(d = d, comp_cols = comp_cols)
+}
+
+# --- fit gaussian model for one component, cached per basis+component ---
+fit_component <- function(comp, d, basis) {
+  form <- bf(as.formula(paste0(comp, "_z ~ 0 + groupID + (1|participant) + (1|concept)")))
+  brm(form, data = d, prior = pr, family = gaussian(),
+      chains = 4, iter = 4000, warmup = 1000, seed = 1,
+      control = list(adapt_delta = 0.95),
+      file = file.path("models", paste0("brm_", basis, "_", comp)),
+      file_refit = "on_change")
+}
+
+# --- extract all comparisons for one fit via emmeans (population-level: re_formula = NA) ---
+extract_comparisons <- function(fit, comp, basis) {
+  emm <- emmeans(fit, ~ groupID, re_formula = NA)     # 4 marginal means, net of RE
+  con <- contrast(emm, method = comparisons)          # weights positional in group order
+  gather_emmeans_draws(con) %>%
+    group_by(contrast) %>%
+    summarise(estimate = median(.value),
+              .lower   = quantile(.value, 0.025),
+              .upper   = quantile(.value, 0.975),
+              pd       = max(mean(.value > 0), mean(.value < 0)),
+              .groups  = "drop") %>%
+    mutate(component = comp,
+           basis     = basis,
+           domain    = str_extract(comp, "^(all|gross|fine)"),
+           credible  = sign(.lower) == sign(.upper))
+}
+
+# --- convergence diagnostics for one fit ---
+diagnose <- function(fit) {
+  np  <- brms::nuts_params(fit)
+  drw <- as_draws_df(fit)
+  ess <- summarise_draws(drw, "ess_bulk", "ess_tail")
+  tibble(max_rhat     = max(brms::rhat(fit), na.rm = TRUE),
+         min_ess_bulk = min(ess$ess_bulk, na.rm = TRUE),
+         min_ess_tail = min(ess$ess_tail, na.rm = TRUE),
+         n_divergent  = sum(np$Value[np$Parameter == "divergent__"]))
+}
+
+# --- read + tidy loadings for a basis (PC or RC id column -> prefixed `component`) ---
+read_loadings <- function(basis, domain) {
+  suf  <- if (basis == "varimax") "_varimax" else ""
+  path <- file.path("Datasets", sprintf("loadings_%s%s.csv", domain, suf))
+  if (!file.exists(path)) return(NULL)
+  x  <- read_csv(path, show_col_types = FALSE)
+  id <- if (basis == "varimax") "RC" else "PC"
+  if (!"sig_loading" %in% names(x) && "CI_above_null_after" %in% names(x))
+    x <- rename(x, sig_loading = CI_above_null_after)     # tolerate the older column name
+  x %>%
+    rename(comp_id = all_of(id)) %>%
+    mutate(comp_id   = as.character(comp_id),
+           comp_id   = if_else(str_detect(comp_id, "^[0-9]+$"), paste0(id, comp_id), comp_id),
+           component = paste0(domain, "_", comp_id),
+           basis     = basis)
+}
+```
+
+# 2. Modeling gesture vs learner vs native
+
+```{r run-basis}
+run_basis <- function(basis) {
+  bd <- build_d(basis)
+  if (is.null(bd)) { message("Skipping basis '", basis, "': score files missing."); return(NULL) }
+  d <- bd$d; comp_cols <- bd$comp_cols
+  message("[", basis, "] modelling: ", paste(comp_cols, collapse = ", "))
+
+  fits <- setNames(lapply(comp_cols, fit_component, d = d, basis = basis), comp_cols)
+
+  list(
+    basis     = basis,
+    d         = d,
+    fits      = fits,
+    comp_cols = comp_cols,
+    coefs     = map_dfr(comp_cols, ~ extract_comparisons(fits[[.x]], .x, basis)),
+    converge  = imap_dfr(fits, ~ mutate(diagnose(.x), component = .y, basis = basis)),
+    n_part    = d %>% distinct(groupID, participant) %>% count(groupID, name = "n_participants")
+  )
+}
+
+
+```
+
+```{r}
+
+load_or_run <- function(basis, cache_dir = "models", refit = FALSE) {
+  f <- file.path(cache_dir, paste0("run_", basis, ".rds"))
+  if (!refit && file.exists(f)) {
+    message("[", basis, "] loading cached run")
+    return(readRDS(f))
+  }
+  res <- run_basis(basis)
+  if (!is.null(res)) {                       # don't cache a skipped basis
+    dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
+    saveRDS(res, f)
+  }
+  res
+}
+
+res_pca     <- load_or_run("pca")
+res_varimax <- load_or_run("varimax")        # re-attempts each run until files exist
+
+runs   <- compact(list(res_pca, res_varimax))
+coefs  <- map_dfr(runs, "coefs")
+conv   <- map_dfr(runs, "converge")
+```
+
+
+```{r n-participants}
+res_pca$n_part
+```
+
+## Convergence (all models, both bases)
+
+```{r converge-table}
+conv %>%
+  mutate(flag = max_rhat > 1.01 | min_ess_bulk < 400 | n_divergent > 0) %>%
+  arrange(desc(flag), desc(max_rhat)) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
+```
+
+Any `flag = TRUE` needs attention (bump `adapt_delta`/`iter`, or a heavier-tailed family —
+see §7).
+
+## Comparison estimates per component
+
+```{r coef-table}
+coefs %>%
+  mutate(across(c(estimate, .lower, .upper, pd), ~ round(.x, 2))) %>%
+  arrange(basis, domain, component, contrast)
+```
+
+`estimate` is a mean difference in SD units; `pd` is the posterior probability of direction;
+`credible` = 95% CrI excludes 0. 
+
+## Domain × comparison: which dimension carries which comparison
+
+```{r domain-comparison-plot, fig.width = 11, fig.height = 6}
+library(tidytext)
+library(ggh4x)
+
+coefs %>%
+  mutate(idx       = as.integer(str_extract(component, "[0-9]+$")),
+         component = fct_reorder(component, idx, .desc = TRUE)) %>%   # PC1/RC1 top -> PC5/RC5 bottom
+  ggplot(aes(estimate, component, colour = credible)) +
+  geom_vline(xintercept = 0, linetype = 2) +
+  geom_pointrange(aes(xmin = .lower, xmax = .upper)) +
+  facet_grid(basis + domain ~ contrast, scales = "free_y", space = "free_y") +
+  scale_colour_manual(values = c(`TRUE` = "#C44E52", `FALSE` = "grey65"), guide = "none") +
+  labs(x = "effect (SD units, net of speaker)", y = NULL,
+       title = "Domain × comparison, unrotated vs rotated") +
+  theme_minimal(base_size = 11)
+
+```
+
+
+Here only the unrotated components
+
+```{r}
+
+library(tidyverse)
+
+lvl <- c("conventionalization", "gesture_vs_native", "naive_vs_beginner",
+         "beginner_vs_native", "learner_vs_native")
+lab <- c(conventionalization = "Conventionalization", gesture_vs_native = "Gesture vs Native",
+         naive_vs_beginner   = "Naïve vs Beginner",   beginner_vs_native = "Beginner vs Native",
+         learner_vs_native = "Learner vs Native")
+pal <- c(`credible ↑` = "#D1495B", `credible ↓` = "#3A7CA5", `not credible` = "#C9CCD1")
+
+plot_df <- coefs %>%
+  filter(basis == "pca") %>%
+  mutate(idx      = as.integer(str_extract(component, "[0-9]+$")),
+         pc       = fct_reorder(str_remove(component, "^(all|gross|fine)_"), idx, .desc = TRUE),
+         domain   = factor(domain, c("all", "gross", "fine"), c("ALL", "GROSS", "FINE")),
+         contrast = factor(contrast, levels = lvl),
+         status   = factor(case_when(!credible ~ "not credible",
+                                     estimate > 0 ~ "credible ↑",
+                                     TRUE ~ "credible ↓"),
+                           levels = names(pal)))
+
+ggplot(plot_df, aes(estimate, pc)) +
+  geom_vline(xintercept = 0, colour = "grey70", linewidth = .4, linetype = "22") +
+  geom_linerange(aes(xmin = .lower, xmax = .upper, colour = status,
+                     linewidth = credible, alpha = credible), lineend = "round") +
+  geom_point(aes(fill = status, size = credible, alpha = credible),
+             shape = 21, colour = "white", stroke = 1) +
+  facet_grid(domain ~ contrast, labeller = labeller(contrast = lab)) +
+  scale_colour_manual(values = pal, guide = "none") +
+  scale_fill_manual(values = pal, name = NULL,
+                    guide = guide_legend(override.aes = list(size = 3.4, alpha = 1))) +
+  scale_linewidth_manual(values = c(`TRUE` = 1.1, `FALSE` = .6), guide = "none") +
+  scale_size_manual(values = c(`TRUE` = 2.7, `FALSE` = 1.8), guide = "none") +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .5), guide = "none") +
+  labs(x = "effect (SD units, net of speaker)", y = NULL,
+       title = "Group comparisons across kinematic dimensions",
+       subtitle = "Unrotated PCA · point = posterior median, line = 95% CrI") +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.major.y  = element_blank(),
+    panel.grid.minor    = element_blank(),
+    panel.grid.major.x  = element_line(colour = "grey93", linewidth = .5),
+    panel.spacing.x     = unit(10, "pt"),
+    panel.spacing.y     = unit(14, "pt"),
+    strip.text.x        = element_text(face = "bold", size = 9.5, colour = "grey15"),
+    strip.text.y        = element_text(face = "bold", size = 9.5, colour = "grey45", angle = -90),
+    axis.text.y         = element_text(size = 9),
+    axis.ticks          = element_blank(),
+    plot.title          = element_text(face = "bold", size = 15),
+    plot.subtitle       = element_text(colour = "grey55", size = 10, margin = margin(b = 10)),
+    plot.title.position  = "plot",
+    legend.position     = "top",
+    legend.justification = "right"
+  )
+
+```
+
+```{r domain-comparison-table}
+coefs %>%
+  group_by(basis, domain, contrast) %>%
+  summarise(carried_by = paste(component[credible], collapse = ", "), .groups = "drop") %>%
+  mutate(carried_by = na_if(carried_by, "")) %>%
+  pivot_wider(names_from = contrast, values_from = carried_by)
+```
+
+## Model checks
+
+```{r pp-loo, fig.width = 7, fig.height = 4}
+# posterior predictive + LOO for every fit; collect Pareto-k warnings
+loo_tab <- imap_dfr(runs, function(run, i) {
+  imap_dfr(run$fits, function(fit, comp) {
+    l <- loo(fit)
+    tibble(basis = run$basis, component = comp,
+           elpd_loo   = l$estimates["elpd_loo", "Estimate"],
+           p_loo      = l$estimates["p_loo", "Estimate"],
+           n_pareto_k_gt_0.7 = sum(l$diagnostics$pareto_k > 0.7))
+  })
+})
+loo_tab %>% arrange(desc(n_pareto_k_gt_0.7)) %>% mutate(across(where(is.numeric), ~round(.x, 1)))
+
+pp_check(res_pca$fits[[ res_pca$comp_cols[1] ]], ndraws = 100)
+```
+
+## Interpretation — which features drive each credible comparison
+
+Join credible comparisons to the (basis-matched) significant loadings. Direction: a positive
+comparison estimate on a positively-loading feature => the first group shows *more* of it.
+
+```{r interpretation}
+
+loadings <- map_dfr(
+  c("pca", "varimax"),
+  function(b) map_dfr(c("all", "gross", "fine"), ~ read_loadings(b, .x))
+)
+
+interpretation <- coefs %>%
+  filter(credible) %>%
+  select(basis, component, contrast, effect = estimate) %>%
+  inner_join(loadings, by = c("basis", "component")) %>%
+  filter(sig_loading) %>%
+  mutate(
+    # keep full `feature`; also split leading category from the measure name
+    category = if_else(str_detect(variable, "^[^_]+__[^_]+__"),
+                       str_extract(variable, "^[^_]+__[^_]+"),   # e.g. "gross__rwrist"
+                       NA_character_),
+    measure  = if_else(str_detect(variable, "^[^_]+__[^_]+__"),
+                       str_remove(variable, "^[^_]+__[^_]+__"),  # e.g. "speed_mean"
+                       variable),
+    moves    = if_else(sign(effect) == sign(loading_sign), "↑ more", "↓ less")
+  ) %>%
+  arrange(basis, contrast, component, category, desc(abs(loading))) %>%
+  relocate(category, measure, .after = component)
+
+interpretation
+```
+
+## Save tidy outputs for the manuscript
+
+```{r save}
+dir.create("Results", showWarnings = FALSE)
+write_csv(coefs,          "results/comparisons_by_component.csv")
+write_csv(conv,           "results/convergence.csv")
+write_csv(loo_tab,        "results/loo_diagnostics.csv")
+write_csv(interpretation, "results/interpretation_features.csv")
+```
+
+# 3. Modelling only within-sign
+
+```{r}
+
+sgroup_levels <- c("Learner_1", "Learner_2", "Sign")
+
+# ---- comparisons: weights in group_levels order (Gesture, Learner_1, Learner_2, Sign) ----
+# fractional weights => each estimate is a directly interpretable mean difference in SD units.
+# fractional weights => each estimate is a directly interpretable mean difference in SD units.
+comparisons <- list(
+  naive_vs_beginner   = c( -1,   1,    0),   # L1 - L2  (within-subject)
+  beginner_vs_native  = c( 0,    -1,   1),   # L2 - Sign
+  learner_vs_native = c(-1/2, -1/2, 1)
+)
+
+
+pr <- c(
+  prior(normal(0, 1),   class = "b"),      # group means (cell-means coding)
+  prior(exponential(1), class = "sd"),
+  prior(exponential(1), class = "sigma")
+)
+
+```
+Run it
+
+```{r}
+
+read_scores <- function(basis, domain) {
+  suf  <- if (basis == "signonly") "_signonly" else ""
+  path <- file.path("Datasets", sprintf("pca_scores_%s%s.csv", domain, suf))
+  if (!file.exists(path)) return(NULL)
+  read_csv(path, show_col_types = FALSE) %>%
+    rename_with(~ paste0(domain, "_", .x), matches("^(PC|RC)[0-9]+$"))
+}
+
+res_sign     <- load_or_run("signonly")
+run_sign   <- compact(list(res_sign))
+coefs  <- map_dfr(run_sign, "coefs")
+conv   <- map_dfr(run_sign, "converge")
+
+```
+## Convergence
+
+```{r}
+
+conv %>%
+  mutate(flag = max_rhat > 1.01 | min_ess_bulk < 400 | n_divergent > 0) %>%
+  arrange(desc(flag), desc(max_rhat)) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
+```
+
+## Coefficients
+
+```{r}
+
+coefs %>%
+  mutate(across(c(estimate, .lower, .upper, pd), ~ round(.x, 2))) %>%
+  arrange(basis, domain, component, contrast)
+```
+
+## Visual comparison
+
+```{r}
+library(tidyverse)
+
+lvl <- c("naive_vs_beginner",
+         "beginner_vs_native", "learner_vs_native")
+lab <- c(naive_vs_beginner   = "Naïve vs Beginner",   beginner_vs_native = "Beginner vs Native",
+         learner_vs_native = "Learner vs Native")
+pal <- c(`credible ↑` = "#D1495B", `credible ↓` = "#3A7CA5", `not credible` = "#C9CCD1")
+
+plot_df <- coefs %>%
+  filter(basis == "signonly") %>%
+  mutate(idx      = as.integer(str_extract(component, "[0-9]+$")),
+         pc       = fct_reorder(str_remove(component, "^(all|gross|fine)_"), idx, .desc = TRUE),
+         domain   = factor(domain, c("all", "gross", "fine"), c("ALL", "GROSS", "FINE")),
+         contrast = factor(contrast, levels = lvl),
+         status   = factor(case_when(!credible ~ "not credible",
+                                     estimate > 0 ~ "credible ↑",
+                                     TRUE ~ "credible ↓"),
+                           levels = names(pal)))
+
+ggplot(plot_df, aes(estimate, pc)) +
+  geom_vline(xintercept = 0, colour = "grey70", linewidth = .4, linetype = "22") +
+  geom_linerange(aes(xmin = .lower, xmax = .upper, colour = status,
+                     linewidth = credible, alpha = credible), lineend = "round") +
+  geom_point(aes(fill = status, size = credible, alpha = credible),
+             shape = 21, colour = "white", stroke = 1) +
+  facet_grid(domain ~ contrast, labeller = labeller(contrast = lab)) +
+  scale_colour_manual(values = pal, guide = "none") +
+  scale_fill_manual(values = pal, name = NULL,
+                    guide = guide_legend(override.aes = list(size = 3.4, alpha = 1))) +
+  scale_linewidth_manual(values = c(`TRUE` = 1.1, `FALSE` = .6), guide = "none") +
+  scale_size_manual(values = c(`TRUE` = 2.7, `FALSE` = 1.8), guide = "none") +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .5), guide = "none") +
+  labs(x = "effect (SD units, net of speaker)", y = NULL,
+       title = "Group comparisons across kinematic dimensions",
+       subtitle = "Unrotated PCA · point = posterior median, line = 95% CrI") +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.major.y  = element_blank(),
+    panel.grid.minor    = element_blank(),
+    panel.grid.major.x  = element_line(colour = "grey93", linewidth = .5),
+    panel.spacing.x     = unit(10, "pt"),
+    panel.spacing.y     = unit(14, "pt"),
+    strip.text.x        = element_text(face = "bold", size = 9.5, colour = "grey15"),
+    strip.text.y        = element_text(face = "bold", size = 9.5, colour = "grey45", angle = -90),
+    axis.text.y         = element_text(size = 9),
+    axis.ticks          = element_blank(),
+    plot.title          = element_text(face = "bold", size = 15),
+    plot.subtitle       = element_text(colour = "grey55", size = 10, margin = margin(b = 10)),
+    plot.title.position  = "plot",
+    legend.position     = "top",
+    legend.justification = "right"
+  )
+```
+
+
