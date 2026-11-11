@@ -2,16 +2,43 @@ project:
   type: book
 
 book:
-  title: "When communication fails, physical effort increases but not to greater effect"
+  title: "From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language"
   chapters:
     - index.qmd           # title page 
-    - Abstract.qmd
-    - Main.qmd    # "Introduction" = NHB's "Main"
-    - Methods.qmd         # NHB puts Methods last
-    - Results-discussion.qmd
-    - Outro.qmd
-    - References.qmd      # if you want a dedicated ref section
+    - Manuscript.qmd  
 
+author:
+  - name: Šárka Kadavá
+    email: kadava@leibniz-zas.de
+    corresponding: true
+    affiliations:
+      - ref: zas
+      - ref: goettingen
+      - ref: radboud
+  - name: Door Spruijt
+    affiliations:
+      - ref: cologne
+  
+affiliations:
+  - id: zas
+    name: Leibniz-Centre General Linguistics (ZAS)
+    city: Berlin
+    country: Germany
+  - id: goettingen
+    name: Georg-August-Universität Göttingen
+    city: Göttingen
+    country: Germany
+  - id: radboud
+    name: Radboud University
+    city: Nijmegen
+    country: Netherlands
+  - id: cologne
+    name: University of Cologne
+    city: Cologne
+    country: Germany
+
+crossref: 
+  chapters: false
 format:
   docx:
     reference-doc: reference-style.docx    # your custom reference template (see below)
@@ -22,6 +49,7 @@ format:
     highlight-style: none
     toc: false
     linestretch: 2
+
     
   pdf:
       documentclass: scrreprt
@@ -34,13 +62,13 @@ format:
       toc: false
       include-in-header:
         text: |
+          \usepackage{multirow}
           \usepackage{etoolbox}
           \usepackage{setspace}
           \usepackage{lineno}
           \renewcommand\linenumberfont{\normalfont\small}
           \renewcommand{\thefootnote}{\arabic{footnote}}
           \renewcommand{\thepage}{\arabic{page}}
-          \renewcommand{\maketitle}{}
           \newcounter{mychapter}
           \renewcommand{\chapter}[1]{%
             \refstepcounter{mychapter}%

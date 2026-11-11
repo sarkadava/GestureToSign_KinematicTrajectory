@@ -1,0 +1,229 @@
+```{r table-setup, cache = FALSE}
+library(gt)
+
+# ===================================================================
+# 0. Shared inputs
+# ===================================================================
+
+dom_levels <- c("all", "gross", "fine")
+dom_lab    <- c(all = "All features", gross = "Gross motor", fine = "Fine motor")
+
+# One row per PCA basis
+basis_info <- tribble(
+  ~basis,     ~title,
+  "pca",      "Pooled PCA",
+  "signonly", "Sign-only PCA"
+)
+
+fits_by_basis <- list(pca = fits_pool, signonly = fits_sign)
+
+# contrasts and diagnostics of both bases (sign-only coefs must be the re-extracted ones,
+# i.e. with "acquisition" instead of "learner_vs_native")
+coefs_all <- bind_rows(filter(coefs, basis == "pca"), coefs_sign)
+conv_all  <- bind_rows(filter(conv,  basis == "pca"), conv_sign) %>%
+  mutate(domain = str_extract(component, "^[a-z]+"))
+
+# needs columns: basis, domain, PC (number), var_exp, var_low, var_high, cum_var
+var_all <- read_csv("Datasets/pca_variance_explained.csv", show_col_types = FALSE)
+
+# ---- interpretive labels; gross_/fine_ components stay unlabelled ("—") ----
+pc_labels <- tribble(
+  ~basis,     ~component, ~label,
+  "pca",      "all_PC1",  "Amplitude",
+  "pca",      "all_PC2",  "Handshape",
+  "pca",      "all_PC3",  "Tempo",
+  "pca",      "all_PC4",  "Smoothness",
+  "pca",      "all_PC5",  "Spectral",
+  "signonly", "all_PC1",  "Amplitude (≈ pooled PC1)",
+  "signonly", "all_PC2",  "Handshape (≈ pooled PC2)",
+  "signonly", "all_PC3",  "Tempo (≈ pooled PC3)",
+  "signonly", "all_PC4",  "Smoothness (≈ pooled PC4)",
+  "signonly", "all_PC5",  "Spectral (≈ pooled PC5)"
+)
+
+# ---- contrasts: column order and headers ----
+contr_all <- c("conventionalization", "acquisition", "gesture_vs_all_signers",
+               "naive_vs_beginner", "beginner_vs_native")
+contr_lab <- list(
+  conventionalization    = html("Conventionali-<br>zation<br><small>native − gesture</small>"),
+  acquisition            = html("Acquisition<br><small>native − mean(L1, L2)</small>"),
+  gesture_vs_all_signers = html("All signers vs<br>gesture<br><small>mean(L1, L2, native) − gesture</small>"),
+  naive_vs_beginner      = html("Naïve vs<br>beginner<br><small>L2 − L1</small>"),
+  beginner_vs_native     = html("Beginner vs<br>native<br><small>native − L2</small>")
+)
+
+# ---- helpers ----
+pretty_feat <- function(v) v %>% str_replace_all("__", " · ") %>% str_replace_all("_", " ")
+dim_of      <- function(component) str_remove(component, "^[a-z]+_")
+
+n_info <- function(basis, domain) {
+  f <- fits_by_basis[[basis]]
+  d <- f[[which(str_starts(names(f), paste0(domain, "_")))[1]]]$data
+  sprintf("%d tokens, %d participants, %d concepts",
+          nrow(d), n_distinct(d$participant), n_distinct(d$concept))
+}
+
+notes_base <- c(
+  paste("**Dimensions.** PCA on standardized kinematic features; each block is a separate PCA.",
+        "Only components exceeding the permutation null and ≥ 5% variance are shown.",
+        "Variance: observed ratio with 95% bootstrap percentile interval (1,000 resamples).",
+        "Dimension numbers are not comparable across blocks; ≈ marks the corresponding pooled dimension."),
+  paste("**Features.** Significant features (index loading above permutation null) ranked by index loading,",
+        "listed until 50% of the component's summed index loading.",
+        "+/− = sign of the loading (+: higher feature value → higher score); % = share of the component's index loading."),
+  paste("**Models.** One Bayesian model per component: score_z ~ 0 + group + (1 | participant) + (1 | concept), Gaussian;",
+        "priors Normal(0, 1) on group means, Exponential(1) on SDs and σ; 4 chains × 8,000 iterations (4,000 warm-up),",
+        "adapt_delta = 0.95. Contrasts extracted with emmeans (population level) as more sign-like minus less sign-like group,",
+        "in SD units of the respective PCA's scores: negative = the more sign-like group scores lower.",
+        "Conventionalization = native − gesture; acquisition = native − mean(naïve, beginner);",
+        "all signers vs gesture = mean(naïve, beginner, native) − gesture.",
+        "**Bold** = 95% CrI excludes 0; pd = probability of direction.",
+        "Scores are z-scaled within each PCA, so magnitudes are not comparable across blocks.",
+        "Contrasts involving gesturers are not estimable in sign-only PCAs and are omitted there."),
+  "**Diagnostics.** Max R̂ / min bulk ESS / number of divergent transitions per model."
+)
+
+note_domain <- paste("**Domains.** Gross = torso, arm, wrist and head features; fine = finger and hand(shape) features;",
+                     "all = both sets together. Each domain has its own PCA and its own models.")
+
+# quick check: every listed contrast must exist in coefs_all
+coefs_all %>% count(basis, contrast) %>% print(n = Inf)
+missing <- setdiff(contr_all, unique(coefs_all$contrast))
+if (length(missing)) warning("Not in coefs_all: ", paste(missing, collapse = ", "),
+                             " -> re-extract coefs / coefs_sign with the renamed comparisons")
+
+# ===================================================================
+# 1. Detailed table: one block per (basis, domain)
+# ===================================================================
+dim_table <- function(spec, title, file, notes_extra = NULL) {
+  # spec: tibble(basis, domain, block); one row group per spec row, in that order
+  spec <- spec %>%
+    mutate(block = paste0(block, " (", map2_chr(basis, domain, n_info), ")"))
+  keys <- select(spec, basis, domain)
+
+  var_tab <- var_all %>%
+    semi_join(keys, by = c("basis", "domain")) %>%
+    transmute(basis, domain, component = paste0(domain, "_PC", PC),
+              variance = sprintf("%.1f%%<br>[%.1f, %.1f]<br><small>cum. %.0f%%</small>",
+                                 100 * var_exp, 100 * var_low, 100 * var_high, 100 * cum_var))
+
+  # rows = every modelled component of every requested PCA (not only those in the variance file)
+  rows <- bind_rows(
+    coefs_all %>% semi_join(keys, by = c("basis", "domain")) %>% distinct(basis, domain, component),
+    select(var_tab, basis, domain, component)
+  ) %>% distinct()
+
+  missing_var <- anti_join(keys, distinct(var_tab, basis, domain), by = c("basis", "domain"))
+  if (nrow(missing_var) > 0)
+    warning("No variance rows for: ", paste(missing_var$basis, missing_var$domain, sep = "/", collapse = ", "),
+            ". Check the `domain` values in pca_variance_explained.csv: ",
+            paste(unique(var_all$domain), collapse = ", "))
+
+  feat_tab <- pmap_dfr(keys, read_loadings) %>%
+    add_count(basis, component, name = "n_sig") %>%
+    filter(within_50pct) %>%
+    arrange(basis, component, desc(share)) %>%
+    group_by(basis, component, n_sig) %>%
+    summarise(n_top = n(),
+              # &#43; instead of "+" so markdown doesn't turn the first line into a bullet
+              features = paste0(if_else(loading_sign > 0, "&#43;", "−"), " ", pretty_feat(variable),
+                                " (", round(100 * share), "%)", collapse = "<br>"),
+              .groups = "drop") %>%
+    mutate(features = paste0(features, "<br><small><i>", n_top, " of ", n_sig,
+                             " significant features</i></small>")) %>%
+    select(basis, component, features)
+
+  con_tab <- coefs_all %>%
+    semi_join(keys, by = c("basis", "domain")) %>%
+    mutate(cell = sprintf("%s%.2f<br>[%.2f, %.2f]%s<br><small>pd = %.3f</small>",
+                          if_else(credible, "<b>", ""), estimate, .lower, .upper,
+                          if_else(credible, "</b>", ""), pd)) %>%
+    select(basis, component, contrast, cell) %>%
+    pivot_wider(names_from = contrast, values_from = cell)
+
+  conv_tab <- conv_all %>%
+    semi_join(keys, by = c("basis", "domain")) %>%
+    transmute(basis, component,
+              diag = sprintf("%.3f<br>%.0f<br>%d", max_rhat, min_ess_bulk, as.integer(n_divergent)))
+
+  tab <- rows %>%
+    left_join(select(var_tab, -domain), by = c("basis", "component")) %>%
+    left_join(pc_labels, by = c("basis", "component")) %>%
+    left_join(feat_tab,  by = c("basis", "component")) %>%
+    left_join(con_tab,   by = c("basis", "component")) %>%
+    left_join(conv_tab,  by = c("basis", "component")) %>%
+    left_join(select(spec, basis, domain, block), by = c("basis", "domain")) %>%
+    mutate(Dim = dim_of(component), block = factor(block, levels = spec$block)) %>%
+    arrange(block, parse_number(Dim))
+
+  # keep only contrasts that exist in at least one block of this table
+  contr <- contr_all[contr_all %in% names(tab)]
+  contr <- contr[map_lgl(contr, ~ any(!is.na(tab[[.x]])))]
+
+  gt_tab <- tab %>%
+    select(block, Dim, label, variance, features, all_of(contr), diag) %>%
+    gt(groupname_col = "block") %>%
+    tab_header(title = title) %>%
+    cols_label(.list = c(list(Dim = "Dim.", label = "Interpretation",
+                              variance = html("Variance<br>explained"),
+                              features = html("Features up to 50%<br>of index loading"),
+                              diag     = html("R̂ / ESS /<br>div.")),
+                         contr_lab[contr])) %>%
+    tab_spanner("Dimension", columns = c(Dim, label, variance, features)) %>%
+    tab_spanner("Group comparisons: estimate [95% CrI], SD units", columns = all_of(contr)) %>%
+    fmt_markdown(columns = c(variance, features, all_of(contr), diag)) %>%
+    sub_missing(missing_text = "—") %>%
+    cols_width(features ~ px(260), label ~ px(140)) %>%
+    tab_style(style = cell_text(size = px(11)), locations = cells_body()) %>%
+    tab_style(style = cell_text(weight = "bold"), locations = cells_row_groups())
+
+  for (n in c(notes_extra, notes_base)) gt_tab <- tab_source_note(gt_tab, md(n))
+  gtsave(gt_tab, file)
+  gt_tab
+}
+
+# ===================================================================
+# 2. Compact summary: which domain × dimension carries which trajectory
+# ===================================================================
+traj_map <- function(bases, title, file) {
+  present <- coefs_all %>%
+    filter(basis %in% bases) %>%
+    distinct(basis, domain, contrast)
+
+  cred <- coefs_all %>%
+    filter(basis %in% bases, credible) %>%
+    left_join(pc_labels, by = c("basis", "component")) %>%
+    mutate(cell = sprintf("%s %+.2f%s", dim_of(component), estimate,
+                          if_else(is.na(label), "", paste0(" <small>", label, "</small>")))) %>%
+    group_by(basis, domain, contrast) %>%
+    summarise(cell = paste(cell, collapse = "<br>"), .groups = "drop")
+
+  tab <- present %>%
+    left_join(cred, by = c("basis", "domain", "contrast")) %>%
+    mutate(cell = coalesce(cell, "—")) %>%                         # estimable, nothing credible
+    pivot_wider(names_from = contrast, values_from = cell) %>%    # NA = not estimable
+    left_join(select(basis_info, basis, title), by = "basis") %>%
+    mutate(block  = factor(title, levels = basis_info$title[basis_info$basis %in% bases]),
+           domain = factor(domain, levels = dom_levels, labels = dom_lab[dom_levels])) %>%
+    arrange(block, domain)
+
+  contr <- contr_all[contr_all %in% names(tab)]
+
+  gt_tab <- tab %>%
+    select(block, domain, all_of(contr)) %>%
+    gt(groupname_col = "block") %>%
+    tab_header(title = title) %>%
+    cols_label(.list = c(list(domain = "Domain"), contr_lab[contr])) %>%
+    fmt_markdown(columns = all_of(contr)) %>%
+    sub_missing(missing_text = "n/a") %>%
+    tab_style(style = cell_text(size = px(11)), locations = cells_body()) %>%
+    tab_style(style = cell_text(weight = "bold"), locations = cells_row_groups()) %>%
+    tab_source_note(md(paste(
+      "Cells list the dimensions whose 95% CrI for that contrast excludes 0, with the posterior mean (SD units).",
+      "— = estimable but no credible difference; n/a = contrast not estimable in that PCA (no gesturers).",
+      "Dimension numbers refer to each domain's own PCA; see the detailed tables for intervals and loadings.")))
+
+  gtsave(gt_tab, file)
+  gt_tab
+}
+```
