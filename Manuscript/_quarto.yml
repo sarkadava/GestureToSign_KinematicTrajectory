@@ -51,35 +51,35 @@ format:
     linestretch: 2
 
     
-  pdf:
-      documentclass: scrreprt
-      pdf-engine: xelatex   # or pdflatex
-      latex-auto-mk: true
-      classoption: [oneside, open=any]
-      number-sections: false
-      suppress-bibliography: false
-      keep-tex: true
-      toc: false
-      include-in-header:
-        text: |
-          \usepackage{multirow}
-          \usepackage{etoolbox}
-          \usepackage{setspace}
-          \usepackage{lineno}
-          \renewcommand\linenumberfont{\normalfont\small}
-          \renewcommand{\thefootnote}{\arabic{footnote}}
-          \renewcommand{\thepage}{\arabic{page}}
-          \newcounter{mychapter}
-          \renewcommand{\chapter}[1]{%
-            \refstepcounter{mychapter}%
-            \par\vspace{6pt}%
-            {\large\bfseries #1}%
-            \par\vspace{3pt}%
-            \setcounter{section}{0}%
-          }
-          \RedeclareSectionCommand[beforeskip=12pt, afterskip=1pt, font=\normalsize\bfseries]{section}
-          \RedeclareSectionCommand[beforeskip=8pt, afterskip=1pt, font=\normalsize\bfseries\itshape]{subsection}
-          \RedeclareSectionCommand[beforeskip=6pt, afterskip=1pt, font=\normalsize\itshape]{subsubsection}
+  # pdf:
+  #     documentclass: scrreprt
+  #     pdf-engine: xelatex   # or pdflatex
+  #     latex-auto-mk: true
+  #     classoption: [oneside, open=any]
+  #     number-sections: false
+  #     suppress-bibliography: false
+  #     keep-tex: true
+  #     toc: false
+  #     include-in-header:
+  #       text: |
+  #         \usepackage{multirow}
+  #         \usepackage{etoolbox}
+  #         \usepackage{setspace}
+  #         \usepackage{lineno}
+  #         \renewcommand\linenumberfont{\normalfont\small}
+  #         \renewcommand{\thefootnote}{\arabic{footnote}}
+  #         \renewcommand{\thepage}{\arabic{page}}
+  #         \newcounter{mychapter}
+  #         \renewcommand{\chapter}[1]{%
+  #           \refstepcounter{mychapter}%
+  #           \par\vspace{6pt}%
+  #           {\large\bfseries #1}%
+  #           \par\vspace{3pt}%
+  #           \setcounter{section}{0}%
+  #         }
+  #         \RedeclareSectionCommand[beforeskip=12pt, afterskip=1pt, font=\normalsize\bfseries]{section}
+  #         \RedeclareSectionCommand[beforeskip=8pt, afterskip=1pt, font=\normalsize\bfseries\itshape]{subsection}
+  #         \RedeclareSectionCommand[beforeskip=6pt, afterskip=1pt, font=\normalsize\itshape]{subsubsection}
 
 execute:
   echo: false
