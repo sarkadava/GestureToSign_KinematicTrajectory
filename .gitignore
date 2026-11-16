@@ -7,7 +7,6 @@
 Miscellaneous/
 QualityChecks/
 Output_Timeseries/
-*.png
 /Sapiens_Output
 
 05_LDA.ipynb
