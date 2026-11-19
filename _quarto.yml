@@ -14,24 +14,26 @@ website:
         
       - section: "A. Pre-processing"
         contents:
-          - 0_Sampling_trials.ipynb
+          - text: Cuting sessions to clips
+            href: 0_Cut_on_ELAN.ipynb
+          - text: Sampling items
+            href: 0_Sampling_trials.ipynb
 
-      - section: "B. Motion tracking"
-        contents:
-          - 1_SinglePerson_Pose_Sapiens2.ipynb
+      - text: "B. Motion tracking with Sapiens"
+        href: 1_SinglePerson_Pose_Sapiens2.ipynb
 
-      - section: "C. Data processing"
-        contents:
-          - 2_SapiensProcessing.ipynb
+      - text: "C. Data processing"
+        href: 2_SapiensProcessing.ipynb
 
-      - section: "D. Feature extraction"
-        contents:
-          - 3_FeatureExtract_Sapiens.ipynb
+      - text: "D. Feature extraction"
+        href: 3_FeatureExtract_Sapiens.ipynb
 
       - section: "E. Analysis"
         contents:
-          - 4_PCA_featureDimensions_varimax.ipynb
-          - 5_PC_brms_models_varimax.Rmd
+          - text: Principal Component Analysis
+            href: 4_PCA_featureDimensions.ipynb
+          - text: Bayesian modeling
+            href: 5_PC_brms_models.Rmd
 
   navbar:
     tools:
