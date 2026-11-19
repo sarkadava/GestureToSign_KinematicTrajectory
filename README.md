@@ -16,9 +16,12 @@ The pipeline is divided into the following steps:
 - Extraction of kinematic features
 - Principal Component Analysis to identify main kinematic dimensions
 - Statistical analysis: Modelling each component identified by PCA as a function of group identity (gesturer, learner, signer)
+
 ## Prerequisites
 
 If you wish to use only some steps of the pipelineor the entire pipeline, you can follow the steps below. Note that this project mostly in Python, but implements also some steps in R. Note that, for example, Visual Studio Code allows one to run both Python and R scripts. 
+
+Note that this repository contains script related to motion tracking (Sapiens2) but it does not involve all installations required for the algorithm to run. Please refer to Sapiens 2 [Github repository](https://github.com/facebookresearch/sapiens2) if you wish to use the algorithm and its models. The script here serves only for review purposes.
 
 ```bash
 # 1 - Clone the Repository
