@@ -8,9 +8,9 @@
 /Sapiens_Output
 /Models
 /Sapiens
-#/Manuscript
+/Manuscript
 .Rhistory
-#_freeze/
-#Videodata/
+_freeze/
+Videodata/
 /.quarto/
 **/*.quarto_ipynb
