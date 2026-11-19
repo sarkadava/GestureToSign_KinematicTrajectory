@@ -25,7 +25,7 @@ If you wish to use only some steps of the pipelineor the entire pipeline, you ca
 git clone https://github.com/sarkadava/GestureToSign_KinematicTrajectory.git
 cd GestureToSign_KinematicTrajectory
 
-# 2.1 - Create a TSPROCESS Conda Environment
+# 2 - Create a TSPROCESS Conda Environment
 conda env create -f environment.yml
 
 # 3 - Add the Conda Environment to Jupyter Notebook
@@ -40,7 +40,7 @@ jupyter notebook
 
 If you want to use and cite and part of the **coding pipeline**, cite:
 
-**add**
+Kadavá, Š. (2026). Supplementary Material to the project From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language (Version 1.0.0) [Computer software]. https://github.com/sarkadava/GestureToSign_KinematicTrajectory
 
 ## Contact
 
