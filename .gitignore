@@ -10,6 +10,7 @@
 /Sapiens
 #/Manuscript
 .Rhistory
-
+#_freeze/
+#Videodata/
 /.quarto/
 **/*.quarto_ipynb

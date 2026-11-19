@@ -1,1 +1,0 @@
-Here we store session videos from Cologne
