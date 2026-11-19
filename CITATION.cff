@@ -1,0 +1,10 @@
+cff-version: 1.0.0
+message: "If you use any step of this pipeline, please cite it as below."
+authors:
+- family-names: "Kadavá"
+  given-names: "Šárka"
+  orcid: "https://orcid.org/0009-0007-4001-6831"
+title: "Supplementary Material to the project From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language"
+version: 1.0.0
+date-released: 26-06-2026
+url: "https://github.com/sarkadava/GestureToSign_KinematicTrajectory"
