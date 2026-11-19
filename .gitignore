@@ -4,21 +4,9 @@
 *.mov
 
 # folders
-Miscellaneous/
-QualityChecks/
-Output_Timeseries/
+/Miscellaneous
 /Sapiens_Output
-
-05_LDA.ipynb
-05_LDA_updated (1).ipynb
-05_LDA_updated (2).ipynb
-05_LDA_updated (3).ipynb
-05_LDA_updated (4).ipynb
-05_LDA_updated.ipynb
-05_LDA.ipynb
-3_collinearity_reduction.ipynb
-5_PC_brms_models (1).Rmd
-5_PC_brms_models.Rmd
 /Models
 /Sapiens
-/Manuscript
+#/Manuscript
+.Rhistory

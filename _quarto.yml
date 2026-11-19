@@ -2,8 +2,7 @@ project:
   type: website
   output-dir: website
   
-bibliography: Manuscript/references.bib
-csl: "Manuscript/apa.csl"
+bibliography: references.bib
 website:
   sidebar:
     style: "floating"
@@ -52,7 +51,6 @@ format:
   html:
     theme: cosmo
     highlight-style: github
-    css: Manuscript/style.css
     max-width: 1300px
 
 # Default execution: run and show code in HTML
