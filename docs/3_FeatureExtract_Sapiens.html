@@ -141,12 +141,12 @@ div.csl-indent {
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory">
             Source Code
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort/issues">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory/issues">
             Report a Bug
             </a>
           </li>
@@ -183,7 +183,7 @@ div.csl-indent {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="https://sarkadava.github.io/FLESH_Effort/" class="sidebar-item-text sidebar-link">
+  <a href="https://sarkadava.github.io/GestureToSign_KinematicTrajectory/" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
@@ -310,6 +310,7 @@ div.csl-indent {
   <li><a href="#finger-independence" id="toc-finger-independence" class="nav-link" data-scroll-target="#finger-independence">Finger independence</a></li>
   <li><a href="#speed-entropy" id="toc-speed-entropy" class="nav-link" data-scroll-target="#speed-entropy">Speed entropy</a></li>
   </ul></li>
+  <li><a href="#visual-overview" id="toc-visual-overview" class="nav-link" data-scroll-target="#visual-overview">Visual overview</a></li>
   <li><a href="#per-file-assembly" id="toc-per-file-assembly" class="nav-link" data-scroll-target="#per-file-assembly">3 Per-file assembly</a></li>
   <li><a href="#batch-loop" id="toc-batch-loop" class="nav-link" data-scroll-target="#batch-loop">4 Batch loop</a></li>
   <li><a href="#aftermath" id="toc-aftermath" class="nav-link" data-scroll-target="#aftermath">5 Aftermath</a></li>
@@ -407,7 +408,9 @@ div.csl-indent {
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>FINGER_MCP_ID <span class="op">=</span> {<span class="st">"thumb"</span>: <span class="dv">2</span>, <span class="st">"index"</span>: <span class="dv">5</span>, <span class="st">"middle"</span>: <span class="dv">9</span>,  <span class="st">"ring"</span>: <span class="dv">13</span>, <span class="st">"pinky"</span>: <span class="dv">17</span>}  <span class="co"># thumb MCP=2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>These are the two files (note that we are not displaying them as they include identifiable information)</p>
-<div id="76df81de" class="cell" data-execution_count="3">
+<div id="76df81de" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sample_kin1 <span class="op">=</span> pd.read_csv(kinfiles[<span class="dv">2</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sample_dist1 <span class="op">=</span> pd.read_csv(distfiles[<span class="dv">2</span>])</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>sample_kin2 <span class="op">=</span> pd.read_csv(kinfiles[<span class="dv">500</span>])</span>
@@ -419,26 +422,33 @@ div.csl-indent {
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>mp4_files <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> os.listdir(<span class="st">"GTST_sampled"</span>) <span class="cf">if</span> f.endswith(<span class="st">".mp4"</span>)]</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>video1 <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> mp4_files <span class="cf">if</span> sample_kin1[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>] <span class="kw">in</span> f][<span class="dv">0</span>]</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>video2 <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> mp4_files <span class="cf">if</span> sample_kin2[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>] <span class="kw">in</span> f][<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>GP01_ARBEITEN IP06_02_KAEMMEN
 GP01_ARBEITEN IP06_02_KAEMMEN</code></pre>
 </div>
 </div>
 <div id="521c6637" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Video</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>dst1 <span class="op">=</span> <span class="st">'Temporary</span><span class="er">\</span><span class="st">output1.mp4'</span>  <span class="co"># choose a suitable output path</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Video(dst1, width<span class="op">=</span><span class="dv">600</span>, embed<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 <div id="84cfe65b" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dst2 <span class="op">=</span> <span class="st">'Temporary</span><span class="er">\</span><span class="st">output2.mp4'</span>  <span class="co"># choose a suitable output path</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Video(dst2, width<span class="op">=</span><span class="dv">600</span>, embed<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="gross-arm-kinematics" class="level2">
 <h2 class="anchored" data-anchor-id="gross-arm-kinematics">1 Gross / arm kinematics</h2>
-<p>These describe the <strong>movement</strong> dimension: magnitude, smoothness, rhythmicity, spatial extent, coordination, and (via the relative-speed columns) proximal-distal ratio.</p>
+<p>These describe the movement dimension: magnitude, smoothness, rhythmicity, spatial extent, coordination, and (via the relative-speed columns) proximal-distal ratio.</p>
 <section id="bounding-box-of-movement-volume-2d" class="level3">
 <h3 class="anchored" data-anchor-id="bounding-box-of-movement-volume-2d">Bounding box of movement volume (2D)</h3>
 <div id="de023cdc" class="cell" data-execution_count="4">
@@ -1021,12 +1031,19 @@ fingertip jerk
 3.1296620596170284</code></pre>
 </div>
 </div>
+</section>
+</section>
+<section id="visual-overview" class="level2">
+<h2 class="anchored" data-anchor-id="visual-overview">Visual overview</h2>
 <p>Here we provide a conceptual overview in a visualized way</p>
 <div id="a048bd80" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> importlib</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> helpers <span class="im">import</span> feature_overview</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> Helpers <span class="im">import</span> feature_overview</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>importlib.<span class="bu">reload</span>(feature_overview)</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>feature_overview.plot_feature_overview(out<span class="op">=</span><span class="st">"plots/feature_overview.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="34">
 <div>
 <figure class="figure">
@@ -1042,7 +1059,6 @@ fingertip jerk
 </div>
 </div>
 </div>
-</section>
 </section>
 <section id="per-file-assembly" class="level2">
 <h2 class="anchored" data-anchor-id="per-file-assembly">3 Per-file assembly</h2>
@@ -1217,8 +1233,12 @@ fingertip jerk
 </section>
 <section id="aftermath" class="level2">
 <h2 class="anchored" data-anchor-id="aftermath">5 Aftermath</h2>
-<div id="b9ed26a9" class="cell" data-execution_count="18">
+<p>This is how the dataframe looks like</p>
+<div id="b9ed26a9" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>features_df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="18">
 <div>
 
@@ -1378,19 +1398,22 @@ fingertip jerk
 </div>
 </div>
 </div>
+<p>Let’s check the missing values</p>
 <div id="d38833a2" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check missing values</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>nan_pct <span class="op">=</span> features_df.isna().mean().mul(<span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">1</span>).sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"features &gt;50% NaN (check names in §0):"</span>)</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(nan_pct[nan_pct <span class="op">&gt;</span> <span class="dv">50</span>])</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove gross__rhythm__band2_peak_freq_totalarm</span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[<span class="st">"gross__rhythm__band2_peak_freq_totalarm"</span>])</span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co"># also remove all columns containing *coverage_totalarm (they are just for checking)</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[c <span class="cf">for</span> c <span class="kw">in</span> features_df.columns <span class="cf">if</span> <span class="st">"coverage_totalarm"</span> <span class="kw">in</span> c])</span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co"># and gross__rhythm__clip_dur_s_totalarm</span></span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[<span class="st">"gross__rhythm__clip_dur_s_totalarm"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Display code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>nan_pct <span class="op">=</span> features_df.isna().mean().mul(<span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">1</span>).sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"features &gt;50% NaN (check names in §0):"</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(nan_pct[nan_pct <span class="op">&gt;</span> <span class="dv">50</span>])</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co"># remove gross__rhythm__band2_peak_freq_totalarm</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[<span class="st">"gross__rhythm__band2_peak_freq_totalarm"</span>])</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co"># also remove all columns containing *coverage_totalarm (they are just for checking)</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[c <span class="cf">for</span> c <span class="kw">in</span> features_df.columns <span class="cf">if</span> <span class="st">"coverage_totalarm"</span> <span class="kw">in</span> c])</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co"># and gross__rhythm__clip_dur_s_totalarm</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[<span class="st">"gross__rhythm__clip_dur_s_totalarm"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>features &gt;50% NaN (check names in §0):
 gross__rhythm__band3_peak_freq_totalarm    70.9
@@ -1398,9 +1421,13 @@ gross__rhythm__band2_peak_freq_totalarm    54.2
 dtype: float64</code></pre>
 </div>
 </div>
-<div id="bd01d690" class="cell" data-execution_count="20">
+<p>And number of rows per group</p>
+<div id="bd01d690" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>features_df[<span class="st">"pcnID"</span>].value_counts().to_dict()</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>features_df[<span class="st">"groupID"</span>].value_counts().to_dict()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="20">
 <pre><code>{'Gesture': 295, 'Learner_2': 264, 'Learner_1': 252, 'Sign': 250}</code></pre>
 </div>
@@ -1453,6 +1480,8 @@ dtype: float64</code></pre>
 <h2 class="anchored" data-anchor-id="cross-correlation">6 Cross-correlation</h2>
 <p>Let’s also check correlation between individual features.</p>
 <div id="3d457979" class="cell">
+<details class="code-fold">
+<summary>Display code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
@@ -1461,6 +1490,7 @@ dtype: float64</code></pre>
 <span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="dv">10</span>))</span>
 <span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>sns.heatmap(corr, annot<span class="op">=</span><span class="va">False</span>, cmap<span class="op">=</span><span class="st">'coolwarm'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">

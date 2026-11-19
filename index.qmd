@@ -3,11 +3,13 @@ title: "From naive to native form: Shared kinematic signatures of conventionaliz
 subtitle: Supplementary Material
 author:
   - name: Šárka Kadavá
+    email: kadava@leibniz-zas.de
     affiliations:
-      - ref: donders
       - ref: zas
+      - ref: donders
       - ref: gottingen
   - name: Door Spruijt
+    email: dspruijt@uni-koeln.de
     affiliations:
       - ref: cologne
  
@@ -25,11 +27,10 @@ affiliations:
     city: Göttingen
     country: Germany
   - id: cologne
-    name: Uni col
+    name: University of Cologne
     city: Cologne
     country: Germany
 
-date-modified: today
 format:
   html:
     code-overflow: wrap
@@ -37,30 +38,28 @@ format:
     toc: true
     toc-depth: 4
     toc-expand: 2
-    toc-title: Contents
+    toc-title: Table of Contents
 ---
 
-This website documents data processing pipeline developed for the study **From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language**. The study resulted from a short-term collaboration between two projects: [**On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)**](https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/){target="_blank"} and **GTST**. The pipeline covers every step from raw data processing to feature extraction and analysis.
+This website documents data processing pipeline developed for the study **From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language**. The study resulted from a short-term collaboration between two projects: [**On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)**](https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/){target="_blank"} and [**The Gesture-to-Sign Trajectory: Phonological Parameters in Production and Real-Time Comprehension**](https://vicom.info/project/the-gesture-to-sign-trajectory-phonological-parameters-in-production-and-real-time-comprehension/){target="_blank"}. The pipeline covers every step from raw data processing to feature extraction and analysis.
 
-The repository associated with this project can be found on [Github](https://github.com/sarkadava/FLESH_Effort){target="_blank"}.
+The repository associated with this project can be found on [Github](https://github.com/sarkadava/GestureToSign_KinematicTrajectory){target="_blank"}.
 
 
 ## Pipeline Overview
 This study builds on multistep pipeline that serves to:
 
-- extract the raw data<br>
-- process them<br>
-- extract relevant features<br>
-- analyze with regards to research questions<br>
+- prepare videos for processing (A)<br>
+- perform motion tracking (B)<br>
+- process resulting time series (C)<br>
+- extract relevant features (D)<br>
+- analyze with regards to research questions (E)<br>
 
-Sections A-E document fully reproducible pipeline that: (1) extracts the raw data, (2) processes them into workable .csv files, (3) extracts relevant features and (4) analyze them with regard to research questions. Note that in this workflow, each step builds on the previous one. However, it is possible to use parts of the workflow for different purposes. Section F presents extended version of results. 
+Section F presents supplementary results. Note that in this workflow, each step builds on the previous one. However, it is possible to use parts of the workflow for different purposes. Section F presents extended version of results. 
 
 ::: callout-note
-We only store and share only already pre-processed .csv files. They are available in the Github repository.
+We only store and share only already pre-processed .csv files. They are available in the Github repository. If you are interested in the raw data, contact Door Spruijt.
 :::
-
-## Acknowledgements
-*Anonymized*
 
 ## Contact
 *Anonymized*
@@ -70,6 +69,3 @@ We only store and share only already pre-processed .csv files. They are availabl
 If you want to use and cite and part of the **coding pipeline**, cite:
 
 *add citation*
-
-## Funding and support
-*Anonymized*

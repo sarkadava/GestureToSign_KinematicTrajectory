@@ -138,12 +138,12 @@ div.csl-indent {
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory">
             Source Code
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort/issues">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory/issues">
             Report a Bug
             </a>
           </li>
@@ -180,7 +180,7 @@ div.csl-indent {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="https://sarkadava.github.io/FLESH_Effort/" class="sidebar-item-text sidebar-link">
+  <a href="https://sarkadava.github.io/GestureToSign_KinematicTrajectory/" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
@@ -352,7 +352,11 @@ div.csl-indent {
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>vfiles <span class="op">=</span> videodata</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>We have made some adjustments to the pipeline such that: - there is a dynamic timeout if the processing gets stalled and doesn’t progress - already processed frames are not processed again</p>
+<p>We have made some adjustments to the pipeline such that:</p>
+<ul>
+<li>there is a dynamic timeout if the processing gets stalled and doesn’t progress</li>
+<li>already processed frames are not processed again</li>
+</ul>
 <div id="29dea969" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to run sapiens</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_sapiens(command, cwd, total_frames, per_frame_timeout<span class="op">=</span><span class="dv">600</span>, poll_interval<span class="op">=</span><span class="dv">5</span>):</span>

@@ -67,7 +67,11 @@ pr <- c(
 )
 ```
 
+To make the process efficient, we build functions that will allow us to fit all the models in a loop. Essentially, each model takes a component of one PCA (pooled-all, pooled-gross, pooled-fine, sign-only, sign-gross, sign-fine) and then saves the output such that it is recognizable which model the component/output belongs to.
+
 ```{r helpers}
+#| code-fold: true
+#| code-summary: Display helper functions
 
 # read one domain's score file, prefix component columns with the domain ---
 read_scores <- function(basis, domain) {
@@ -176,9 +180,11 @@ read_loadings <- function(basis, domain) {
 
 ## 2. Modeling gesture vs learner vs native
 
-First, check the number of items per participant per group
+First, check the number of items per participant and per group
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
 
 tokens <- read_csv(file.path("Datasets", "pca_scores_all.csv"), show_col_types = FALSE)
 
@@ -263,7 +269,12 @@ conv   <- map_dfr(runs, "converge")
 
 ### Convergence (all models)
 
+Now we check for Rhat, ESS and number of divergent transitions. If any model exhibits weird behavior, it will be flagged in the table.
+
 ```{r converge-table}
+#| code-fold: true
+#| code-summary: Display code
+
 conv %>%
   mutate(flag = max_rhat > 1.01 | min_ess_bulk < 400 | n_divergent > 0) %>%
   arrange(desc(flag), desc(max_rhat)) %>%
@@ -274,7 +285,12 @@ No model has been flagged as worth attention in terms of convergence
 
 ### Comparison estimates per component
 
+Here are the estimates per each comparison
+
 ```{r coef-table}
+#| code-fold: true
+#| code-summary: Display code
+
 coefs %>%
   mutate(across(c(estimate, .lower, .upper, pd), ~ round(.x, 2))) %>%
   arrange(basis, domain, component, contrast)
@@ -287,6 +303,8 @@ coefs %>%
 ### Domain × comparison: which dimension carries which comparison
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
 
 lvl <- c("gesture_vs_all_signers", "conventionalization", "naive_vs_beginner",
          "beginner_vs_native", "acquisition")
@@ -306,47 +324,7 @@ plot_df <- coefs %>%
                                      TRUE ~ "credible ↓"),
                            levels = names(pal)))
 
-ggplot(plot_df, aes(estimate, pc)) +
-  geom_vline(xintercept = 0, colour = "grey70", linewidth = .4, linetype = "22") +
-  geom_linerange(aes(xmin = .lower, xmax = .upper, colour = status,
-                     linewidth = credible, alpha = credible), lineend = "round") +
-  geom_point(aes(fill = status, size = credible, alpha = credible),
-             shape = 21, colour = "white", stroke = 1) +
-  facet_grid(domain ~ contrast, labeller = labeller(contrast = lab)) +
-  scale_colour_manual(values = pal, guide = "none") +
-  scale_fill_manual(values = pal, name = NULL,
-                    guide = guide_legend(override.aes = list(size = 3.4, alpha = 1))) +
-  scale_linewidth_manual(values = c(`TRUE` = 1.1, `FALSE` = .6), guide = "none") +
-  scale_size_manual(values = c(`TRUE` = 2.7, `FALSE` = 1.8), guide = "none") +
-  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .5), guide = "none") +
-  labs(x = "effect (SD units, net of speaker)", y = NULL,
-       title = "Group comparisons across kinematic dimensions",
-       subtitle = "Unrotated PCA · point = posterior median, line = 95% CrI") +
-  theme_minimal(base_size = 11) +
-  theme(
-    panel.grid.major.y  = element_blank(),
-    panel.grid.minor    = element_blank(),
-    panel.grid.major.x  = element_line(colour = "grey93", linewidth = .5),
-    panel.spacing.x     = unit(10, "pt"),
-    panel.spacing.y     = unit(14, "pt"),
-    strip.text.x        = element_text(face = "bold", size = 9.5, colour = "grey15"),
-    strip.text.y        = element_text(face = "bold", size = 9.5, colour = "grey45", angle = -90),
-    axis.text.y         = element_text(size = 9),
-    axis.ticks          = element_blank(),
-    plot.title          = element_text(face = "bold", size = 15),
-    plot.subtitle       = element_text(colour = "grey55", size = 10, margin = margin(b = 10)),
-    plot.title.position  = "plot",
-    legend.position     = "top",
-    legend.justification = "right"
-  )
-
-```
-
-More focused for the paper
-
-```{r}
-
-# component names shown on the y axis; edit to your final naming
+# component names shown on the y axis
 pc_names <- c(PC1 = "Vigour", PC2 = "Handshape", PC3 = "Tempo",
               PC4 = "Smoothness", PC5 = "Spectral")
 
@@ -428,15 +406,6 @@ ggsave("plots/forest_pooled_all_main.png", p_main, width = 10, height = 7, dpi =
 
 ```
 
-
-```{r domain-comparison-table}
-coefs %>%
-  group_by(basis, domain, contrast) %>%
-  summarise(carried_by = paste(component[credible], collapse = ", "), .groups = "drop") %>%
-  mutate(carried_by = na_if(carried_by, "")) %>%
-  pivot_wider(names_from = contrast, values_from = carried_by)
-```
-
 ### Model checks
 
 ```{r loo, eval=FALSE}
@@ -453,8 +422,11 @@ loo_tab <- imap_dfr(runs, function(run, i) {
 loo_tab %>% arrange(desc(n_pareto_k_gt_0.7)) %>% mutate(across(where(is.numeric), ~round(.x, 1)))
 ```
 
-
+Posterior predictive check can help us verify whether predicted data fit the real data
 ```{r pp, fig.width = 7, fig.height = 4 }
+#| code-fold: true
+#| code-summary: Display code
+
 
 pp_check(res_pca$fits[[ res_pca$comp_cols[1] ]], ndraws = 100)
 ```
@@ -465,6 +437,9 @@ Join credible comparisons to the (basis-matched) significant loadings. Direction
 comparison estimate on a positively-loading feature => the first group shows *more* of it.
 
 ```{r interpretation}
+#| code-fold: true
+#| code-summary: Display code
+
 
 loadings <- map_dfr(
   c("pca"),
@@ -538,6 +513,10 @@ pal_who <- c(Gesture = "grey55", Learner_1 = "#7CAE00", Learner_2 = "#00BFC4",
 #### Per participant (pooled PCA)
 
 ```{r speaker-grid-pool, cache = FALSE, fig.width = 14, fig.height = 7}
+#| code-fold: true
+#| code-summary: Display code
+
+
 comps_pool <- c("all_PC1", "all_PC2", "all_PC3", "all_PC4")
 stopifnot(all(comps_pool %in% names(fits_pool)))
 
@@ -562,12 +541,17 @@ ggplot(spk_pool, aes(mean, tidytext::reorder_within(label, mean, panel), colour 
   labs(x = "PC score (z, pooled PCA)", y = NULL) +
   theme_minimal() + theme(legend.position = "top")
 ```
+
 We can see that in PC2 (handshape), most of the gesturers are in front of native signers as well as learners. In PC4 (smoothness) the separation is much more clear: two native signers are in front, followed by learners and at last, gesturers. However. note that the model native signer here is also far from the other native signer, so it may be that this subject drives the separation and more participants in this group are needed to specify the effect of smoothness (which may be expected less extreme). PC1 and PC3, in contrast, are much more mixed.
 
 
 #### Per concept (pooled PCA)
 
 ```{r concept-grid-pool, cache = FALSE, fig.width = 14, fig.height = 16}
+#| code-fold: true
+#| code-summary: Display code
+
+
 con_pool <- map_dfr(comps_pool, get_comp_data, fits = fits_pool) %>%
   mutate(who = who_of(as.character(participant), groupID)) %>%
   group_by(component, who, concept) %>%
@@ -590,6 +574,10 @@ ggplot(con_pool, aes(mean, tidytext::reorder_within(concept, mean, panel), colou
 How much items overlap?
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
+
+
 # concept overlap between groups 
 tok <- res_pca$d %>% select(groupID, participant, concept) %>%
   mutate(across(everything(), as.character))
@@ -657,6 +645,9 @@ per_part_ov %>% print(n = Inf)
 
 How are the results holding for overlapping items?
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
+
 
 within_concept <- function(k, grp_a, grp_b) {
   fit  <- res_pca$fits[[k]]
@@ -689,6 +680,8 @@ bind_rows(
 PC4 (smoothness) effects hold for all overlapping concepts. PC2 (handshape) not so much: 60% for acquisition trajectory and 79% for conventionalization trajectory.
 
 ## 3. Modelling only within-sign
+
+Now we will perform exactly the same procedure but with components from PCA that took only data from learners and native signers.
 
 ```{r}
 
@@ -725,6 +718,9 @@ stopifnot(!"Gesture" %in% fits_sign[["all_PC1"]]$data$groupID)   # sign-only rea
 ### Convergence
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
+
 
 conv_sign %>%
   mutate(flag = max_rhat > 1.01 | min_ess_bulk < 400 | n_divergent > 0) %>%
@@ -732,11 +728,12 @@ conv_sign %>%
   mutate(across(where(is.numeric), ~ round(.x, 3)))
 ```
 
-Note that fine_PC4 has one divergent transition, therefore should be interpreted with caution.
-
 ### Coefficients
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
+
 
 coefs_sign %>%
   mutate(across(c(estimate, .lower, .upper, pd), ~ round(.x, 2))) %>%
@@ -746,6 +743,8 @@ coefs_sign %>%
 ### Visual comparison
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
 
 
 lvl_sign <- c("naive_vs_beginner",
@@ -816,14 +815,20 @@ loo_tab <- imap_dfr(run_sign, function(run, i) {
 loo_tab %>% arrange(desc(n_pareto_k_gt_0.7)) %>% mutate(across(where(is.numeric), ~round(.x, 1)))
 ```
 
-
+Here posterior predictive check:
 ```{r pp sign-only, fig.width = 7, fig.height = 4}
+#| code-fold: true
+#| code-summary: Display code
+
 pp_check(res_sign$fits[[ res_sign$comp_cols[1] ]], ndraws = 100)
 ```
 
 ### Interpretation
 
 ```{r}
+#| code-fold: true
+#| code-summary: Display code
+
 
 read_loadings_so <- function(domain) {
   path <- file.path("Datasets", sprintf("loadings_%s_signonly.csv", domain))  # adjust folder
@@ -876,6 +881,9 @@ write_csv(interpretation_sign, "results/interpretation_features_signonly.csv")
 ### Plot sig PCs per participant
 
 ```{r speaker-grid-sign, cache = FALSE, fig.width = 12, fig.height = 6}
+#| code-fold: true
+#| code-summary: Display code
+
 
 # sign-only models are `fits_sign` (loaded above); helpers from §2
 comps_sign <- c("all_PC1", "all_PC3", "all_PC4")
@@ -908,6 +916,9 @@ ggplot(spk_sign, aes(mean, tidytext::reorder_within(label, mean, panel), colour 
 ### Concept-specific
 
 ```{r concept-grid-sign, cache = FALSE, fig.width = 12, fig.height = 16}
+#| code-fold: true
+#| code-summary: Display code
+
 
 con_sign <- map_dfr(comps_sign, get_comp_data, fits = fits_sign) %>%
   mutate(who = who_of(as.character(participant), groupID)) %>%
@@ -1031,6 +1042,104 @@ ggsave("plots/pc_pairs_grid_pooled_all.png", pairs_grid,
        width = 9, height = 9, dpi = 300, bg = "white")
 ```
 
+
+### Groups on 1D axis
+
+```{r}
+#| code-fold: true
+#| code-summary: Code to prepare plot
+
+comps_1d <- paste0("all_PC", 1:4)             
+
+pc_names <- c(PC1 = "Vigour", PC2 = "Handshape", PC3 = "Tempo",
+              PC4 = "Smoothness", PC5 = "Spectral")
+
+# what low / high scores mean (from the 50% loading sets)
+poles <- tribble(
+  ~component, ~low,                          ~high,
+  "all_PC1",  "lower, steadier peaks",       "higher, more variable peaks",
+  "all_PC2",  "more closed hand",            "more open hand",
+  "all_PC3",  "slower, more regular",        "faster, more peaks per second",
+  "all_PC4",  "smoother, fewer submovements", "more intermittent",
+  "all_PC5",  "lower-frequency spectrum",    "higher-frequency spectrum"
+) %>% filter(component %in% comps_1d)
+
+grp_cols <- c(pal_who, Sign = "#8E44AD")
+offs     <- c(Gesture = .27, Learner_1 = .09, Learner_2 = -.09, Sign = -.27)  # vertical slots
+row_of   <- function(k) match(k, rev(comps_1d))                               # PC1 on top
+
+# model based group means
+grp_1d <- map_dfr(comps_1d, \(k)
+  emmeans(fits_pool[[k]], ~ groupID, re_formula = NA) %>%
+    gather_emmeans_draws() %>% median_qi(.value) %>%
+    mutate(component = k)) %>%
+  mutate(groupID = as.character(groupID),
+         y       = row_of(component) + offs[groupID])
+
+# raw speaker means
+spk_1d <- map_dfr(comps_1d, \(k) {
+  fit  <- fits_pool[[k]]
+  resp <- all.vars(fit$formula$formula)[1]
+  fit$data %>%
+    group_by(who = as.character(groupID), participant) %>%
+    summarise(mean = mean(.data[[resp]]), .groups = "drop") %>%
+    mutate(component = k)
+}) %>%
+  mutate(y = row_of(component) + offs[who])
+
+# L1-L2 shift
+arr_1d <- grp_1d %>%
+  filter(groupID %in% c("Learner_1", "Learner_2")) %>%
+  select(component, groupID, .value) %>%
+  pivot_wider(names_from = groupID, values_from = .value) %>%
+  mutate(y = row_of(component))
+
+lims <- range(c(spk_1d$mean, grp_1d$.lower, grp_1d$.upper), na.rm = TRUE) + c(-.1, .1)
+
+poles <- poles %>% mutate(y = row_of(component) + .45)
+
+# plot
+p_1d <- ggplot() +
+  annotate("rect", xmin = -Inf, xmax = Inf,
+           ymin = seq_along(comps_1d) - .4, ymax = seq_along(comps_1d) + .4,
+           fill = "grey97") +
+  geom_vline(xintercept = 0, colour = "grey75", linewidth = .4, linetype = "22") +
+  geom_point(data = spk_1d, aes(mean, y, colour = who), alpha = .35, size = 1.7) +
+  geom_segment(data = arr_1d,
+               aes(x = Learner_1, xend = Learner_2, y = y, yend = y),
+               arrow = arrow(length = unit(5, "pt")), colour = "grey35", linewidth = .5) +
+  geom_linerange(data = grp_1d, aes(y = y, xmin = .lower, xmax = .upper, colour = groupID),
+                 linewidth = .9) +
+  geom_point(data = grp_1d, aes(.value, y, colour = groupID),
+             size = 3.6, shape = 21, fill = "white", stroke = 1.4) +
+  geom_text(data = poles, aes(x = lims[1], y = y, label = paste("←", low)),
+            hjust = 0, size = 3, colour = "grey45") +
+  geom_text(data = poles, aes(x = lims[2], y = y, label = paste(high, "→")),
+            hjust = 1, size = 3, colour = "grey45") +
+  scale_colour_manual(values = grp_cols, name = NULL) +
+  scale_y_continuous(breaks = seq_along(comps_1d),
+                     labels = rev(paste0(pc_names[str_remove(comps_1d, "^all_")],
+                                         " (", str_remove(comps_1d, "^all_"), ")")),
+                     expand = expansion(add = .1)) +
+  coord_cartesian(xlim = lims) +
+  labs(x = "component score (SD units)", y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor   = element_blank(),
+        axis.text.y        = element_text(face = "bold", size = 10.5, colour = "grey15"),
+        plot.title         = element_text(face = "bold", size = 15),
+        plot.subtitle      = element_text(colour = "grey55", size = 10),
+        plot.title.position = "plot",
+        legend.position    = "top",
+        legend.justification = "left")
+
+p_1d
+ggsave("plots/group_positions_1d.png", p_1d, width = 9, height = 6, dpi = 300, bg = "white")
+
+
+```
+
+### Tables
 
 ```{r table-setup, cache = FALSE}
 #| code-fold: true
@@ -1258,104 +1367,7 @@ traj_map <- function(bases, title, file) {
 }
 ```
 
-### Groups on 1D axis
-
-```{r}
-#| code-fold: true
-#| code-summary: Code to prepare plot
-
-comps_1d <- paste0("all_PC", 1:4)             
-
-pc_names <- c(PC1 = "Vigour", PC2 = "Handshape", PC3 = "Tempo",
-              PC4 = "Smoothness", PC5 = "Spectral")
-
-# what low / high scores mean (from the 50% loading sets)
-poles <- tribble(
-  ~component, ~low,                          ~high,
-  "all_PC1",  "lower, steadier peaks",       "higher, more variable peaks",
-  "all_PC2",  "more closed hand",            "more open hand",
-  "all_PC3",  "slower, more regular",        "faster, more peaks per second",
-  "all_PC4",  "smoother, fewer submovements", "more intermittent",
-  "all_PC5",  "lower-frequency spectrum",    "higher-frequency spectrum"
-) %>% filter(component %in% comps_1d)
-
-grp_cols <- c(pal_who, Sign = "#8E44AD")
-offs     <- c(Gesture = .27, Learner_1 = .09, Learner_2 = -.09, Sign = -.27)  # vertical slots
-row_of   <- function(k) match(k, rev(comps_1d))                               # PC1 on top
-
-# model based group means
-grp_1d <- map_dfr(comps_1d, \(k)
-  emmeans(fits_pool[[k]], ~ groupID, re_formula = NA) %>%
-    gather_emmeans_draws() %>% median_qi(.value) %>%
-    mutate(component = k)) %>%
-  mutate(groupID = as.character(groupID),
-         y       = row_of(component) + offs[groupID])
-
-# raw speaker means
-spk_1d <- map_dfr(comps_1d, \(k) {
-  fit  <- fits_pool[[k]]
-  resp <- all.vars(fit$formula$formula)[1]
-  fit$data %>%
-    group_by(who = as.character(groupID), participant) %>%
-    summarise(mean = mean(.data[[resp]]), .groups = "drop") %>%
-    mutate(component = k)
-}) %>%
-  mutate(y = row_of(component) + offs[who])
-
-# L1-L2 shift
-arr_1d <- grp_1d %>%
-  filter(groupID %in% c("Learner_1", "Learner_2")) %>%
-  select(component, groupID, .value) %>%
-  pivot_wider(names_from = groupID, values_from = .value) %>%
-  mutate(y = row_of(component))
-
-lims <- range(c(spk_1d$mean, grp_1d$.lower, grp_1d$.upper), na.rm = TRUE) + c(-.1, .1)
-
-poles <- poles %>% mutate(y = row_of(component) + .45)
-
-# plot
-p_1d <- ggplot() +
-  annotate("rect", xmin = -Inf, xmax = Inf,
-           ymin = seq_along(comps_1d) - .4, ymax = seq_along(comps_1d) + .4,
-           fill = "grey97") +
-  geom_vline(xintercept = 0, colour = "grey75", linewidth = .4, linetype = "22") +
-  geom_point(data = spk_1d, aes(mean, y, colour = who), alpha = .35, size = 1.7) +
-  geom_segment(data = arr_1d,
-               aes(x = Learner_1, xend = Learner_2, y = y, yend = y),
-               arrow = arrow(length = unit(5, "pt")), colour = "grey35", linewidth = .5) +
-  geom_linerange(data = grp_1d, aes(y = y, xmin = .lower, xmax = .upper, colour = groupID),
-                 linewidth = .9) +
-  geom_point(data = grp_1d, aes(.value, y, colour = groupID),
-             size = 3.6, shape = 21, fill = "white", stroke = 1.4) +
-  geom_text(data = poles, aes(x = lims[1], y = y, label = paste("←", low)),
-            hjust = 0, size = 3, colour = "grey45") +
-  geom_text(data = poles, aes(x = lims[2], y = y, label = paste(high, "→")),
-            hjust = 1, size = 3, colour = "grey45") +
-  scale_colour_manual(values = grp_cols, name = NULL) +
-  scale_y_continuous(breaks = seq_along(comps_1d),
-                     labels = rev(paste0(pc_names[str_remove(comps_1d, "^all_")],
-                                         " (", str_remove(comps_1d, "^all_"), ")")),
-                     expand = expansion(add = .1)) +
-  coord_cartesian(xlim = lims) +
-  labs(x = "component score (SD units)", y = NULL) +
-  theme_minimal(base_size = 11) +
-  theme(panel.grid.major.y = element_blank(),
-        panel.grid.minor   = element_blank(),
-        axis.text.y        = element_text(face = "bold", size = 10.5, colour = "grey15"),
-        plot.title         = element_text(face = "bold", size = 15),
-        plot.subtitle      = element_text(colour = "grey55", size = 10),
-        plot.title.position = "plot",
-        legend.position    = "top",
-        legend.justification = "left")
-
-p_1d
-ggsave("plots/group_positions_1d.png", p_1d, width = 9, height = 6, dpi = 300, bg = "white")
-
-
-```
-
-
-### Table 1 · Pooled vs sign-only (all features)
+#### Table 1 · Pooled vs sign-only (all features)
 
 ```{r table-pooled-vs-signonly, cache = FALSE, eval=FALSE}
 dim_table(
@@ -1366,7 +1378,7 @@ dim_table(
   file  = "results/table1_pooled_vs_signonly.html")
 ```
 
-### Table 2 · Pooled: PCA on all vs gross vs fine features
+#### Table 2 · Pooled: PCA on all vs gross vs fine features
 
 ```{r table-domains-pooled, cache = FALSE, eval=FALSE}
 dim_table(
@@ -1377,7 +1389,7 @@ dim_table(
   notes_extra = note_domain)
 ```
 
-### Table 3 · Sign-only: PCA on all vs gross vs fine features
+#### Table 3 · Sign-only: PCA on all vs gross vs fine features
 
 ```{r table-domains-signonly, cache = FALSE, eval=FALSE}
 dim_table(
@@ -1387,7 +1399,6 @@ dim_table(
   file  = "results/table3_domains_signonly.html",
   notes_extra = note_domain)
 ```
-
 
 ## Prepare values for direct report in Manuscript
 
@@ -1404,6 +1415,14 @@ report_values <- list(
 )
 
 saveRDS(report_values, "results/report_values.rds")
+
+```
+
+## Session Info
+
+```{r}
+
+sessionInfo()
 
 ```
 

@@ -85,12 +85,12 @@ ul.task-list li input[type="checkbox"] {
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory">
             Source Code
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort/issues">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory/issues">
             Report a Bug
             </a>
           </li>
@@ -127,7 +127,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="https://sarkadava.github.io/FLESH_Effort/" class="sidebar-item-text sidebar-link">
+  <a href="https://sarkadava.github.io/GestureToSign_KinematicTrajectory/" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
   </div>
 </li>
@@ -231,14 +231,12 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2">
-    <h2 id="toc-title">Contents</h2>
+    <h2 id="toc-title">Table of Contents</h2>
    
   <ul>
   <li><a href="#pipeline-overview" id="toc-pipeline-overview" class="nav-link active" data-scroll-target="#pipeline-overview">Pipeline Overview</a></li>
-  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
   <li><a href="#contact" id="toc-contact" class="nav-link" data-scroll-target="#contact">Contact</a></li>
   <li><a href="#how-to-cite" id="toc-how-to-cite" class="nav-link" data-scroll-target="#how-to-cite">How to cite</a></li>
-  <li><a href="#funding-and-support" id="toc-funding-and-support" class="nav-link" data-scroll-target="#funding-and-support">Funding and support</a></li>
   </ul>
 </nav>
     </div>
@@ -257,25 +255,25 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-title-meta-heading">Affiliations</div>
   
     <div class="quarto-title-meta-contents">
-    <p class="author">Šárka Kadavá </p>
+    <p class="author">Šárka Kadavá <a href="mailto:kadava@leibniz-zas.de" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
   </div>
   <div class="quarto-title-meta-contents">
         <p class="affiliation">
-            Donders Institute for Brain, Cognition and Behaviour, Radboud University
+            Leibniz-Centre General Linguistics
           </p>
         <p class="affiliation">
-            Leibniz-Centre General Linguistics
+            Donders Institute for Brain, Cognition and Behaviour, Radboud University
           </p>
         <p class="affiliation">
             University of Göttingen
           </p>
       </div>
     <div class="quarto-title-meta-contents">
-    <p class="author">Door Spruijt </p>
+    <p class="author">Door Spruijt <a href="mailto:dspruijt@uni-koeln.de" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
   </div>
   <div class="quarto-title-meta-contents">
         <p class="affiliation">
-            Uni col
+            University of Cologne
           </p>
       </div>
   </div>
@@ -284,12 +282,6 @@ ul.task-list li input[type="checkbox"] {
 
       
   
-    <div>
-    <div class="quarto-title-meta-heading">Modified</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 19, 2026</p>
-    </div>
-  </div>
     
   </div>
   
@@ -298,18 +290,19 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This website documents data processing pipeline developed for the study <strong>From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language</strong>. The study resulted from a short-term collaboration between two projects: <a href="https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/" target="_blank"><strong>On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)</strong></a> and <strong>GTST</strong>. The pipeline covers every step from raw data processing to feature extraction and analysis.</p>
-<p>The repository associated with this project can be found on <a href="https://github.com/sarkadava/FLESH_Effort" target="_blank">Github</a>.</p>
+<p>This website documents data processing pipeline developed for the study <strong>From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language</strong>. The study resulted from a short-term collaboration between two projects: <a href="https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/" target="_blank"><strong>On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)</strong></a> and <a href="https://vicom.info/project/the-gesture-to-sign-trajectory-phonological-parameters-in-production-and-real-time-comprehension/" target="_blank"><strong>The Gesture-to-Sign Trajectory: Phonological Parameters in Production and Real-Time Comprehension</strong></a>. The pipeline covers every step from raw data processing to feature extraction and analysis.</p>
+<p>The repository associated with this project can be found on <a href="https://github.com/sarkadava/GestureToSign_KinematicTrajectory" target="_blank">Github</a>.</p>
 <section id="pipeline-overview" class="level2">
 <h2 class="anchored" data-anchor-id="pipeline-overview">Pipeline Overview</h2>
 <p>This study builds on multistep pipeline that serves to:</p>
 <ul>
-<li>extract the raw data<br></li>
-<li>process them<br></li>
-<li>extract relevant features<br></li>
-<li>analyze with regards to research questions<br></li>
+<li>prepare videos for processing (A)<br></li>
+<li>perform motion tracking (B)<br></li>
+<li>process resulting time series (C)<br></li>
+<li>extract relevant features (D)<br></li>
+<li>analyze with regards to research questions (E)<br></li>
 </ul>
-<p>Sections A-E document fully reproducible pipeline that: (1) extracts the raw data, (2) processes them into workable .csv files, (3) extracts relevant features and (4) analyze them with regard to research questions. Note that in this workflow, each step builds on the previous one. However, it is possible to use parts of the workflow for different purposes. Section F presents extended version of results.</p>
+<p>Section F presents supplementary results. Note that in this workflow, each step builds on the previous one. However, it is possible to use parts of the workflow for different purposes. Section F presents extended version of results.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -320,13 +313,9 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>We only store and share only already pre-processed .csv files. They are available in the Github repository.</p>
+<p>We only store and share only already pre-processed .csv files. They are available in the Github repository. If you are interested in the raw data, contact Door Spruijt.</p>
 </div>
 </div>
-</section>
-<section id="acknowledgements" class="level2">
-<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
-<p><em>Anonymized</em></p>
 </section>
 <section id="contact" class="level2">
 <h2 class="anchored" data-anchor-id="contact">Contact</h2>
@@ -336,10 +325,6 @@ Note
 <h2 class="anchored" data-anchor-id="how-to-cite">How to cite</h2>
 <p>If you want to use and cite and part of the <strong>coding pipeline</strong>, cite:</p>
 <p><em>add citation</em></p>
-</section>
-<section id="funding-and-support" class="level2">
-<h2 class="anchored" data-anchor-id="funding-and-support">Funding and support</h2>
-<p><em>Anonymized</em></p>
 
 
 </section>

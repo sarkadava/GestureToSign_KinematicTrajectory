@@ -9,7 +9,7 @@ website:
     search: true
     contents:
       - text: "Home"
-        href: https://sarkadava.github.io/FLESH_Effort/
+        href: https://sarkadava.github.io/GestureToSign_KinematicTrajectory/
         
       - section: "A. Pre-processing"
         contents:
@@ -48,9 +48,9 @@ website:
       - icon: github
         menu:
           - text: Source Code
-            href:  https://github.com/sarkadava/FLESH_Effort
+            href:  https://github.com/sarkadava/GestureToSign_KinematicTrajectory
           - text: Report a Bug
-            href:  https://github.com/sarkadava/FLESH_Effort/issues
+            href:  https://github.com/sarkadava/GestureToSign_KinematicTrajectory/issues
 
 metadata:
   crossref:
