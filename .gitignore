@@ -10,3 +10,6 @@
 /Sapiens
 #/Manuscript
 .Rhistory
+
+/.quarto/
+**/*.quarto_ipynb

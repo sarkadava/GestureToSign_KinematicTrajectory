@@ -34,6 +34,15 @@ website:
           - text: Bayesian modeling
             href: 5_PC_brms_models.Rmd
 
+      - section: "F. Supplementary Results"
+        contents:
+          - text: Table I. Pooled-only vs sign-only models
+            href: Results/table1_pooled_vs_signonly.html
+          - text: Table II. Pooled-only models (comparison of all, gross, fine features)
+            href: Results/table2_domains_pooled.html
+          - text: Table III. Sign-only models (comparison of all, gross, fine features)
+            href: Results/table3_domains_signonly.html
+
   navbar:
     tools:
       - icon: github
@@ -49,19 +58,14 @@ metadata:
 
 format:
   html:
-    theme: cosmo
+    theme: litera
     highlight-style: github
     max-width: 1300px
 
 # Default execution: run and show code in HTML
 execute:
-  enabled: false
-  freeze: false
+  enabled: true
+  freeze: auto
   warning: false
   message: false
   cache: false                
-
-
-
-
-

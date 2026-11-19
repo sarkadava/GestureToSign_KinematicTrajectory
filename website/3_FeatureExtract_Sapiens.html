@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Feature Extraction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6f1530dded9f53304828c819beb42b67.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+        <div class="quarto-navbar-tools tools-end">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort">
+            Source Code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/sarkadava/FLESH_Effort/issues">
+            Report a Bug
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./3_FeatureExtract_Sapiens.html">D. Feature extraction</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="https://sarkadava.github.io/FLESH_Effort/" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">A. Pre-processing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_Cut_on_ELAN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cuting sessions to clips</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0_Sampling_trials.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sampling items</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1_SinglePerson_Pose_Sapiens2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">B. Motion tracking with Sapiens</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2_SapiensProcessing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">C. Data processing</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3_FeatureExtract_Sapiens.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">D. Feature extraction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">E. Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4_PCA_featureDimensions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Principal Component Analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5_PC_brms_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">F. Supplementary Results</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Results/table1_pooled_vs_signonly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Table I. Pooled-only vs sign-only models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Results/table2_domains_pooled.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Table II. Pooled-only models (comparison of all, gross, fine features)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Results/table3_domains_signonly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Table III. Sign-only models (comparison of all, gross, fine features)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#configuration" id="toc-configuration" class="nav-link" data-scroll-target="#configuration">Configuration</a></li>
+  <li><a href="#gross-arm-kinematics" id="toc-gross-arm-kinematics" class="nav-link" data-scroll-target="#gross-arm-kinematics">1 Gross / arm kinematics</a>
+  <ul class="collapse">
+  <li><a href="#bounding-box-of-movement-volume-2d" id="toc-bounding-box-of-movement-volume-2d" class="nav-link" data-scroll-target="#bounding-box-of-movement-volume-2d">Bounding box of movement volume (2D)</a></li>
+  <li><a href="#intermittency-dimensionless-jerk" id="toc-intermittency-dimensionless-jerk" class="nav-link" data-scroll-target="#intermittency-dimensionless-jerk">Intermittency (dimensionless jerk)</a></li>
+  <li><a href="#sparc" id="toc-sparc" class="nav-link" data-scroll-target="#sparc">SPARC</a></li>
+  <li><a href="#peaks" id="toc-peaks" class="nav-link" data-scroll-target="#peaks">Peaks</a></li>
+  <li><a href="#arm-coupling" id="toc-arm-coupling" class="nav-link" data-scroll-target="#arm-coupling">Arm coupling</a></li>
+  <li><a href="#wavelet-rhythmicity" id="toc-wavelet-rhythmicity" class="nav-link" data-scroll-target="#wavelet-rhythmicity">Wavelet rhythmicity</a></li>
+  <li><a href="#proximal-distal-use" id="toc-proximal-distal-use" class="nav-link" data-scroll-target="#proximal-distal-use">Proximal-distal use</a></li>
+  </ul></li>
+  <li><a href="#hand-handshape-features" id="toc-hand-handshape-features" class="nav-link" data-scroll-target="#hand-handshape-features">2 Hand / handshape features</a>
+  <ul class="collapse">
+  <li><a href="#distances-aperture-opposition-etc." id="toc-distances-aperture-opposition-etc." class="nav-link" data-scroll-target="#distances-aperture-opposition-etc.">Distances (aperture, opposition etc.)</a></li>
+  <li><a href="#handshape-size-and-variability" id="toc-handshape-size-and-variability" class="nav-link" data-scroll-target="#handshape-size-and-variability">Handshape size and variability</a></li>
+  <li><a href="#fingertip-dynamics" id="toc-fingertip-dynamics" class="nav-link" data-scroll-target="#fingertip-dynamics">Fingertip dynamics</a></li>
+  <li><a href="#finger-independence" id="toc-finger-independence" class="nav-link" data-scroll-target="#finger-independence">Finger independence</a></li>
+  <li><a href="#speed-entropy" id="toc-speed-entropy" class="nav-link" data-scroll-target="#speed-entropy">Speed entropy</a></li>
+  </ul></li>
+  <li><a href="#per-file-assembly" id="toc-per-file-assembly" class="nav-link" data-scroll-target="#per-file-assembly">3 Per-file assembly</a></li>
+  <li><a href="#batch-loop" id="toc-batch-loop" class="nav-link" data-scroll-target="#batch-loop">4 Batch loop</a></li>
+  <li><a href="#aftermath" id="toc-aftermath" class="nav-link" data-scroll-target="#aftermath">5 Aftermath</a></li>
+  <li><a href="#cross-correlation" id="toc-cross-correlation" class="nav-link" data-scroll-target="#cross-correlation">6 Cross-correlation</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Feature Extraction</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>In this script, we use the processed timeseries and summarized them using various kinematic features into flat dataframe which we can use for Principal Component Analysis.</p>
+<p>We will first proceed with demonstrating each feature on two files, and finally we perform loop over all files to extract all the features into single dataframe.</p>
+<div id="d7d16c5c" class="cell">
+<details class="code-fold">
+<summary>Code to prepare the environment</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, glob, warnings</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.signal <span class="im">import</span> find_peaks</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> median_abs_deviation, entropy</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pywt                     <span class="co"># wavelet</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> antropy <span class="im">as</span> ent          <span class="co"># sample entropy </span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pywt</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>curfolder <span class="op">=</span> os.getcwd()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>processedfolder <span class="op">=</span> os.path.join(curfolder, <span class="st">'Sapiens_Processed'</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>kinfiles <span class="op">=</span> glob.glob(os.path.join(processedfolder, <span class="st">'*_kinematics.csv'</span>))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>distfiles <span class="op">=</span> glob.glob(os.path.join(processedfolder, <span class="st">'*_distances.csv'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="configuration" class="level2">
+<h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
+<div id="19706227" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sides</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>SIDES <span class="op">=</span> [<span class="st">"right"</span>, <span class="st">"left"</span>]                 <span class="co"># Sapiens uses lowercase</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># gross keypoints</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ARM_JOINTS <span class="op">=</span> [<span class="st">"shoulder"</span>, <span class="st">"elbow"</span>, <span class="st">"wrist"</span>]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate columns </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>TOTAL_ARM_SPEED <span class="op">=</span> <span class="st">"arm_total_speed"</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>TOTAL_ARM_ACC   <span class="op">=</span> <span class="st">"arm_total_acc"</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>TOTAL_ARM_JERK  <span class="op">=</span> <span class="st">"arm_total_jerk"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>TIME_COL        <span class="op">=</span> <span class="st">"time_s"</span>                </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># finger -&gt; {joint role: stem suffix}. MCP=third_joint, PIP=2, DIP=3, TIP=4.</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>FINGERS <span class="op">=</span> {</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"thumb"</span>:         {<span class="st">"MCP"</span>: <span class="st">"thumb_third_joint"</span>,         <span class="st">"PIP"</span>: <span class="st">"thumb2"</span>,         <span class="st">"DIP"</span>: <span class="st">"thumb3"</span>,         <span class="st">"TIP"</span>: <span class="st">"thumb4"</span>},</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"index"</span>:         {<span class="st">"MCP"</span>: <span class="st">"forefinger_third_joint"</span>,    <span class="st">"PIP"</span>: <span class="st">"forefinger2"</span>,    <span class="st">"DIP"</span>: <span class="st">"forefinger3"</span>,    <span class="st">"TIP"</span>: <span class="st">"forefinger4"</span>},</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"middle"</span>:        {<span class="st">"MCP"</span>: <span class="st">"middle_finger_third_joint"</span>, <span class="st">"PIP"</span>: <span class="st">"middle_finger2"</span>, <span class="st">"DIP"</span>: <span class="st">"middle_finger3"</span>, <span class="st">"TIP"</span>: <span class="st">"middle_finger4"</span>},</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ring"</span>:          {<span class="st">"MCP"</span>: <span class="st">"ring_finger_third_joint"</span>,   <span class="st">"PIP"</span>: <span class="st">"ring_finger2"</span>,   <span class="st">"DIP"</span>: <span class="st">"ring_finger3"</span>,   <span class="st">"TIP"</span>: <span class="st">"ring_finger4"</span>},</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pinky"</span>:         {<span class="st">"MCP"</span>: <span class="st">"pinky_finger_third_joint"</span>,  <span class="st">"PIP"</span>: <span class="st">"pinky_finger2"</span>,  <span class="st">"DIP"</span>: <span class="st">"pinky_finger3"</span>,  <span class="st">"TIP"</span>: <span class="st">"pinky_finger4"</span>},</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kp(side, stem):            <span class="co"># -&gt; "right_forefinger4"</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>side<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>stem<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tip_stem(finger):          <span class="co"># -&gt; "forefinger4"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> FINGERS[finger][<span class="st">"TIP"</span>]</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mcp_stem(finger):</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> FINGERS[finger][<span class="st">"MCP"</span>]</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># distance column helper</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dist_col(side, j1, j2):    <span class="co"># "r8_5"  (magnitude column)</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="st">"r"</span> <span class="cf">if</span> side <span class="op">==</span> <span class="st">"right"</span> <span class="cf">else</span> <span class="st">"l"</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>p<span class="sc">}{</span>j1<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>j2<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>FINGER_TIP_ID <span class="op">=</span> {<span class="st">"thumb"</span>: <span class="dv">4</span>, <span class="st">"index"</span>: <span class="dv">8</span>, <span class="st">"middle"</span>: <span class="dv">12</span>, <span class="st">"ring"</span>: <span class="dv">16</span>, <span class="st">"pinky"</span>: <span class="dv">20</span>}</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>FINGER_MCP_ID <span class="op">=</span> {<span class="st">"thumb"</span>: <span class="dv">2</span>, <span class="st">"index"</span>: <span class="dv">5</span>, <span class="st">"middle"</span>: <span class="dv">9</span>,  <span class="st">"ring"</span>: <span class="dv">13</span>, <span class="st">"pinky"</span>: <span class="dv">17</span>}  <span class="co"># thumb MCP=2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>These are the two files (note that we are not displaying them as they include identifiable information)</p>
+<div id="76df81de" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sample_kin1 <span class="op">=</span> pd.read_csv(kinfiles[<span class="dv">2</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sample_dist1 <span class="op">=</span> pd.read_csv(distfiles[<span class="dv">2</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>sample_kin2 <span class="op">=</span> pd.read_csv(kinfiles[<span class="dv">500</span>])</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>sample_dist2 <span class="op">=</span> pd.read_csv(distfiles[<span class="dv">500</span>])</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sample_kin1[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>], sample_kin2[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>])</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sample_dist1[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>], sample_dist2[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>mp4_files <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> os.listdir(<span class="st">"GTST_sampled"</span>) <span class="cf">if</span> f.endswith(<span class="st">".mp4"</span>)]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>video1 <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> mp4_files <span class="cf">if</span> sample_kin1[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>] <span class="kw">in</span> f][<span class="dv">0</span>]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>video2 <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> mp4_files <span class="cf">if</span> sample_kin2[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>] <span class="kw">in</span> f][<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>GP01_ARBEITEN IP06_02_KAEMMEN
+GP01_ARBEITEN IP06_02_KAEMMEN</code></pre>
+</div>
+</div>
+<div id="521c6637" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Video</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>dst1 <span class="op">=</span> <span class="st">'Temporary</span><span class="er">\</span><span class="st">output1.mp4'</span>  <span class="co"># choose a suitable output path</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Video(dst1, width<span class="op">=</span><span class="dv">600</span>, embed<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="84cfe65b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dst2 <span class="op">=</span> <span class="st">'Temporary</span><span class="er">\</span><span class="st">output2.mp4'</span>  <span class="co"># choose a suitable output path</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Video(dst2, width<span class="op">=</span><span class="dv">600</span>, embed<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gross-arm-kinematics" class="level2">
+<h2 class="anchored" data-anchor-id="gross-arm-kinematics">1 Gross / arm kinematics</h2>
+<p>These describe the <strong>movement</strong> dimension: magnitude, smoothness, rhythmicity, spatial extent, coordination, and (via the relative-speed columns) proximal-distal ratio.</p>
+<section id="bounding-box-of-movement-volume-2d" class="level3">
+<h3 class="anchored" data-anchor-id="bounding-box-of-movement-volume-2d">Bounding box of movement volume (2D)</h3>
+<div id="de023cdc" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bounding-box movement volume (spatial extent of a keypoint) </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_bbmv(df, side, joint):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Area of the x-y bounding box swept by one keypoint = how much space it covers."""</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    xc, yc <span class="op">=</span> kp(side, joint) <span class="op">+</span> <span class="st">"_x"</span>, kp(side, joint) <span class="op">+</span> <span class="st">"_y"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> xc <span class="kw">not</span> <span class="kw">in</span> df.columns <span class="kw">or</span> yc <span class="kw">not</span> <span class="kw">in</span> df.columns:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (df[xc].<span class="bu">max</span>() <span class="op">-</span> df[xc].<span class="bu">min</span>()) <span class="op">*</span> (df[yc].<span class="bu">max</span>() <span class="op">-</span> df[yc].<span class="bu">min</span>())</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>sample_kin1 <span class="op">=</span> pd.read_csv(kinfiles[<span class="dv">2</span>])</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>sample_kin2 <span class="op">=</span> pd.read_csv(kinfiles[<span class="dv">500</span>])</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_bbmv(sample_kin1, <span class="st">"right"</span>, <span class="st">"wrist"</span>))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_bbmv(sample_kin2, <span class="st">"right"</span>, <span class="st">"wrist"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.0026532982988495797
+0.28906637174603167</code></pre>
+</div>
+</div>
+</section>
+<section id="intermittency-dimensionless-jerk" class="level3">
+<h3 class="anchored" data-anchor-id="intermittency-dimensionless-jerk">Intermittency (dimensionless jerk)</h3>
+<p>Calculation taken from <span class="citation" data-cites="pouwSystematicInvestigationGesture2021a">Pouw et al. (<a href="#ref-pouwSystematicInvestigationGesture2021a" role="doc-biblioref">2021</a>)</span>.</p>
+<div id="9692545e" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Intermittency / dimensionless jerk (smoothness; higher = less smooth)  </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_intermittency(jerk_values, speed_values):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate intermittency (dimensionless jerk) from jerk and speed values.</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">        jerk_values: Array-like of jerk values (acceleration derivative)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">        speed_values: Array-like of speed values (velocity magnitude)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">        float: Intermittency value (log of sum of squared jerk multiplied by</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">               (n^3 / max(speed^2)), or NaN if all speeds are zero)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    jerk <span class="op">=</span> np.asarray(jerk_values)<span class="op">;</span> speed <span class="op">=</span> np.asarray(speed_values)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.<span class="bu">all</span>(speed <span class="op">==</span> <span class="dv">0</span>):</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.log(np.<span class="bu">sum</span>(jerk <span class="op">**</span> <span class="dv">2</span>) <span class="op">*</span> (<span class="bu">len</span>(speed) <span class="op">**</span> <span class="dv">3</span> <span class="op">/</span> np.<span class="bu">max</span>(speed <span class="op">**</span> <span class="dv">2</span>)))</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_intermittency(sample_kin1[<span class="st">"right_wrist_jerk"</span>], sample_kin1[<span class="st">"right_wrist_speed"</span>]))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_intermittency(sample_kin2[<span class="st">"right_wrist_jerk"</span>], sample_kin2[<span class="st">"right_wrist_speed"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>24.805752696192908
+24.24246612994662</code></pre>
+</div>
+</div>
+</section>
+<section id="sparc" class="level3">
+<h3 class="anchored" data-anchor-id="sparc">SPARC</h3>
+<div id="06db701e" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SPARC — spectral arc length smoothness  </span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># More robust smoothness measure than dimensionless jerk (less noise/duration sensitive).</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># More negative = less smooth. Keep alongside intermittency; they disagree usefully.</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_sparc(speed, fs, fc<span class="op">=</span><span class="fl">10.0</span>, amp_th<span class="op">=</span><span class="fl">0.05</span>):</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute SPARC (Spectral Arc Length Smoothness) metric for motion smoothness.</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">        speed: Array-like of speed values (units: arbitrary)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">        fs: Sampling frequency (Hz)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">        fc: Cutoff frequency for frequency domain analysis (Hz)</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">        amp_th: Amplitude threshold for frequency components to include</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">        SPARC score (more negative = less smooth)</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    speed <span class="op">=</span> np.asarray(speed, <span class="bu">float</span>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(speed) <span class="op">&lt;</span> <span class="dv">8</span> <span class="kw">or</span> np.<span class="bu">all</span>(speed <span class="op">==</span> <span class="dv">0</span>):</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> <span class="bu">int</span>(<span class="dv">2</span> <span class="op">**</span> np.ceil(np.log2(<span class="bu">len</span>(speed) <span class="op">*</span> <span class="dv">4</span>)))     <span class="co"># zero-pad for resolution</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    Mf <span class="op">=</span> np.<span class="bu">abs</span>(np.fft.rfft(speed, N))</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    Mf <span class="op">=</span> Mf <span class="op">/</span> (Mf.<span class="bu">max</span>() <span class="op">+</span> <span class="fl">1e-12</span>)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    freq <span class="op">=</span> np.fft.rfftfreq(N, d<span class="op">=</span><span class="fl">1.0</span> <span class="op">/</span> fs)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    keep <span class="op">=</span> freq <span class="op">&lt;=</span> fc</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    f, M <span class="op">=</span> freq[keep], Mf[keep]</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    inrange <span class="op">=</span> M <span class="op">&gt;=</span> amp_th                                <span class="co"># adaptive cutoff</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> inrange.<span class="bu">sum</span>() <span class="op">&lt;</span> <span class="dv">2</span>:</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.nan</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    f, M <span class="op">=</span> f[inrange], M[inrange]</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    df_ <span class="op">=</span> np.diff(f) <span class="op">/</span> (f[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> f[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">1e-12</span>)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>np.<span class="bu">sum</span>(np.sqrt(df_ <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> np.diff(M) <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>sr1 <span class="op">=</span> <span class="bu">round</span>(<span class="bu">len</span>(sample_kin1) <span class="op">/</span> (sample_kin1[<span class="st">'time_s'</span>].iloc[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> sample_kin1[<span class="st">'time_s'</span>].iloc[<span class="dv">0</span>]), <span class="dv">0</span>) </span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>sr2 <span class="op">=</span> <span class="bu">round</span>(<span class="bu">len</span>(sample_kin2) <span class="op">/</span> (sample_kin2[<span class="st">'time_s'</span>].iloc[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> sample_kin2[<span class="st">'time_s'</span>].iloc[<span class="dv">0</span>]), <span class="dv">0</span>) </span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_sparc(sample_kin1[<span class="st">'right_wrist_speed'</span>], sr1))</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_sparc(sample_kin2[<span class="st">'right_wrist_speed'</span>], sr2))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>-1.7074043619300991
+-3.2272377518858857</code></pre>
+</div>
+</div>
+</section>
+<section id="peaks" class="level3">
+<h3 class="anchored" data-anchor-id="peaks">Peaks</h3>
+<div id="e2a88062" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Peaks / submovements   </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_peaks(df, col, fs, time_col<span class="op">=</span>TIME_COL):</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute peak characteristics from a signal column in a DataFrame.</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">        df: DataFrame containing the signal data</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">        col: Name of the column containing the signal</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">        fs: Sampling frequency of the signal</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">        time_col: Name of the column containing time values (default: 'time_s')</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Dictionary containing:</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">        - peak_mean: Mean of peak values</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">        - peak_std: Standard deviation of peak values</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">        - peak_n: Number of peaks detected</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">        - peak_rate: Peak rate (peaks per second)</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">        - mod_depth: Modulation depth (mean peak - mean trough)</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> col <span class="kw">not</span> <span class="kw">in</span> df.columns:</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">dict</span>(peak_mean<span class="op">=</span>np.nan, peak_std<span class="op">=</span>np.nan, peak_n<span class="op">=</span>np.nan,</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>                    peak_rate<span class="op">=</span>np.nan, mod_depth<span class="op">=</span>np.nan)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    scale <span class="op">=</span> median_abs_deviation(df[col].dropna(), scale<span class="op">=</span><span class="st">"normal"</span>)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    prominence <span class="op">=</span> scale <span class="op">*</span> <span class="fl">0.6</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    distance <span class="op">=</span> <span class="bu">int</span>((<span class="fl">0.1</span> <span class="cf">if</span> <span class="st">"acc"</span> <span class="kw">in</span> col <span class="cf">else</span> <span class="fl">0.2</span>) <span class="op">*</span> fs)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> np.<span class="bu">abs</span>(df[col].values) <span class="cf">if</span> <span class="st">"acc"</span> <span class="kw">in</span> col <span class="cf">else</span> df[col].values</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    peaks, _ <span class="op">=</span> find_peaks(sig, distance<span class="op">=</span><span class="bu">max</span>(distance, <span class="dv">1</span>), prominence<span class="op">=</span>prominence)</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    vals <span class="op">=</span> df[col].iloc[peaks]</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    duration <span class="op">=</span> df[time_col].iloc[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> df[time_col].iloc[<span class="dv">0</span>]</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># peak_rate (length-normalized)</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    peak_rate <span class="op">=</span> <span class="bu">len</span>(peaks) <span class="op">/</span> duration <span class="cf">if</span> duration <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> np.nan</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># modulation depth = mean(peak) - mean(trough between peaks).</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Shallow troughs = blended/co-articulated submovements; deep = segmented.</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    mod_depth <span class="op">=</span> np.nan</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(peaks) <span class="op">&gt;=</span> <span class="dv">2</span>:</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>        troughs <span class="op">=</span> [sig[peaks[i]:peaks[i<span class="op">+</span><span class="dv">1</span>]].<span class="bu">min</span>() <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(peaks) <span class="op">-</span> <span class="dv">1</span>)]</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        mod_depth <span class="op">=</span> <span class="bu">float</span>(np.mean(sig[peaks]) <span class="op">-</span> np.mean(troughs))</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">dict</span>(peak_mean<span class="op">=</span><span class="bu">float</span>(vals.mean()) <span class="cf">if</span> <span class="bu">len</span>(vals) <span class="cf">else</span> np.nan,</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>                peak_std<span class="op">=</span><span class="bu">float</span>(vals.std()) <span class="cf">if</span> <span class="bu">len</span>(vals) <span class="cf">else</span> np.nan,</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>                peak_n<span class="op">=</span><span class="bu">len</span>(peaks), peak_rate<span class="op">=</span>peak_rate, mod_depth<span class="op">=</span>mod_depth)</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>TIME_COL <span class="op">=</span> <span class="st">'time_s'</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compute_peaks(sample_kin1, <span class="st">'right_wrist_speed'</span>, sr1, TIME_COL))</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compute_peaks(sample_kin2, <span class="st">'right_wrist_speed'</span>, sr2, TIME_COL))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'peak_mean': 0.04978007079309058, 'peak_std': 0.07589176020506765, 'peak_n': 10, 'peak_rate': 2.127659574468085, 'mod_depth': 0.03626171562247221}
+{'peak_mean': 2.0211404757081355, 'peak_std': 1.1029739590420373, 'peak_n': 3, 'peak_rate': 0.7627118644067797, 'mod_depth': 1.8908110291050422}</code></pre>
+</div>
+</div>
+</section>
+<section id="arm-coupling" class="level3">
+<h3 class="anchored" data-anchor-id="arm-coupling">Arm coupling</h3>
+<div id="3c5c9ddd" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bimanual coupling (L&lt;-&gt;R correlation) and asymmetry   #</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_arm_coupling(df, joints<span class="op">=</span>(<span class="st">"wrist"</span>, <span class="st">"elbow"</span>), dims<span class="op">=</span>(<span class="st">"x"</span>, <span class="st">"y"</span>), absolute<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute correlation between left and right arm movements across specified joints and dimensions.</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">        df: DataFrame containing kinematic data with columns named as 'left_{joint}_{dim}' and 'right_{joint}_{dim}'</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">        joints: Tuple of joint names to analyze (default: wrist and elbow)</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">        dims: Tuple of dimensions to analyze (default: x and y)</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">        absolute: If True, return absolute correlation values (default: True)</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean correlation between left and right arm movements across specified joints and dimensions,</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">        or NaN if no valid pairs are found.</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    corrs <span class="op">=</span> []</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> joints:</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> d <span class="kw">in</span> dims:</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>            lc, rc <span class="op">=</span> <span class="ss">f"left_</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>d<span class="sc">}</span><span class="ss">"</span>, <span class="ss">f"right_</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>d<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> lc <span class="kw">in</span> df.columns <span class="kw">and</span> rc <span class="kw">in</span> df.columns:</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                c <span class="op">=</span> np.corrcoef(df[lc], df[rc])[<span class="dv">0</span>, <span class="dv">1</span>]</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                corrs.append(<span class="bu">abs</span>(c) <span class="cf">if</span> absolute <span class="cf">else</span> c)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.nanmean(corrs) <span class="cf">if</span> corrs <span class="cf">else</span> np.nan</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_arm_asymmetry(df):</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute asymmetry between left and right arm movements by comparing absolute speed sums.</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co">        df: DataFrame containing kinematic data with columns named as 'left_{joint}_speed' and 'right_{joint}_speed'</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean asymmetry between left and right arm movements across all joints,</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co">        where negative values indicate right arm dominance and positive values indicate left arm dominance,</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co">        or NaN if no valid pairs are found.</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    diffs <span class="op">=</span> []</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> ARM_JOINTS:</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>        lc, rc <span class="op">=</span> <span class="ss">f"left_</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">_speed"</span>, <span class="ss">f"right_</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">_speed"</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> lc <span class="kw">in</span> df.columns <span class="kw">and</span> rc <span class="kw">in</span> df.columns:</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>            diffs.append(np.nansum(np.<span class="bu">abs</span>(df[lc])) <span class="op">-</span> np.nansum(np.<span class="bu">abs</span>(df[rc])))</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.nanmean(diffs) <span class="cf">if</span> diffs <span class="cf">else</span> np.nan</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compute_arm_coupling(sample_kin1))</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compute_arm_coupling(sample_kin2))</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compute_arm_asymmetry(sample_kin1)) </span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compute_arm_asymmetry(sample_kin2))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.9024920898506008
+0.5094575497216012
+-0.4017468675527325
+-40.037875294762635</code></pre>
+</div>
+</div>
+</section>
+<section id="wavelet-rhythmicity" class="level3">
+<h3 class="anchored" data-anchor-id="wavelet-rhythmicity">Wavelet rhythmicity</h3>
+<p>Inspired by <span class="citation" data-cites="pouwQuasirhythmicFeaturesHanda">Pouw et al. (<a href="#ref-pouwQuasirhythmicFeaturesHanda" role="doc-biblioref">2020</a>)</span></p>
+<div id="68fb9ba2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wavelet rhythmicity (3 bands)  </span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wavelet_rhythmicity(speed, time, bands<span class="op">=</span>((<span class="fl">1.0</span>, <span class="fl">2.0</span>), (<span class="fl">2.0</span>, <span class="fl">3.0</span>), (<span class="fl">3.0</span>, <span class="fl">5.0</span>)),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                        n_freqs<span class="op">=</span><span class="dv">60</span>, wavelet<span class="op">=</span><span class="st">"cmor1.5-1.0"</span>, fs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                        min_valid_frac<span class="op">=</span><span class="fl">0.25</span>, plot<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Wavelet band metrics for a kinematic speed signal.</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Changes vs. the original:</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">      - sampling rate taken from `time` (fs only used as a consistency check)</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">      - signal demeaned before the CWT (speed is &gt;= 0; the offset creates edge steps)</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">      - power rectified by scale (Liu et al., 2007) to remove the low-frequency bias</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">      - cone of influence (COI) masked before time-averaging</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">      - peak frequency only reported for a true local maximum inside the band</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">        (otherwise NaN), so a decaying spectrum no longer yields "peak = lower edge"</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">      - band entropy normalised by log(n_bins) so bands of different width compare</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">        speed: speed signal (array-like)</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co">        time: time stamps in seconds (array-like, same length)</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">        bands: frequency bands (Hz) as (low, high) tuples</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co">        n_freqs: number of linearly spaced analysis frequencies</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co">        wavelet: pywt complex Morlet name, "cmorB-C"</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="co">        fs: optional sampling rate, checked against `time`</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co">        min_valid_frac: minimum fraction of samples outside the COI for a</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co">            frequency row to be used</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="co">        plot: draw scalogram (COI shaded) and mean spectrum (log y)</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="co">        dict with, per band: band_power (relative to all usable power in the</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="co">        analysed range), centroid, peak_freq (NaN if no interior peak),</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co">        entropy (0-1), coverage (fraction of band bins outside COI limits).</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    speed <span class="op">=</span> np.asarray(speed, <span class="bu">float</span>)</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> np.asarray(time, <span class="bu">float</span>)</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.isnan(speed).<span class="bu">any</span>():</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>        ok <span class="op">=</span> <span class="op">~</span>np.isnan(speed)</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>        speed <span class="op">=</span> np.interp(time, time[ok], speed[ok])</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    dt <span class="op">=</span> np.median(np.diff(time))</span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> fs <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> <span class="kw">not</span> np.isclose(fs, <span class="dv">1</span> <span class="op">/</span> dt, rtol<span class="op">=</span><span class="fl">0.01</span>):</span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"fs=</span><span class="sc">{</span>fs<span class="sc">}</span><span class="ss"> but time vector implies </span><span class="sc">{</span><span class="dv">1</span> <span class="op">/</span> dt<span class="sc">:.3f}</span><span class="ss"> Hz"</span>)</span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> speed <span class="op">-</span> speed.mean()</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>    fmin <span class="op">=</span> <span class="bu">min</span>(b[<span class="dv">0</span>] <span class="cf">for</span> b <span class="kw">in</span> bands)</span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>    fmax <span class="op">=</span> <span class="bu">max</span>(b[<span class="dv">1</span>] <span class="cf">for</span> b <span class="kw">in</span> bands)</span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>    freqs <span class="op">=</span> np.linspace(fmin, fmax, n_freqs)</span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>    scales <span class="op">=</span> pywt.central_frequency(wavelet) <span class="op">/</span> (freqs <span class="op">*</span> dt)</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    coef, _ <span class="op">=</span> pywt.cwt(x, scales, wavelet, sampling_period<span class="op">=</span>dt)</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>    power <span class="op">=</span> np.<span class="bu">abs</span>(coef) <span class="op">**</span> <span class="dv">2</span> <span class="op">/</span> scales[:, <span class="va">None</span>]  <span class="co"># bias rectification</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cone of influence: e-folding time of edge effects = sqrt(2) * sigma_t</span></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>    B, C <span class="op">=</span> (<span class="bu">float</span>(v) <span class="cf">for</span> v <span class="kw">in</span> wavelet[<span class="dv">4</span>:].split(<span class="st">"-"</span>))</span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>    sigma_t <span class="op">=</span> C <span class="op">*</span> np.sqrt(B <span class="op">/</span> <span class="dv">2</span>) <span class="op">/</span> freqs           <span class="co"># seconds</span></span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>    efold <span class="op">=</span> np.sqrt(<span class="dv">2</span>) <span class="op">*</span> sigma_t</span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> time <span class="op">-</span> time[<span class="dv">0</span>]</span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> t[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>    coi <span class="op">=</span> (t[<span class="va">None</span>, :] <span class="op">&gt;=</span> efold[:, <span class="va">None</span>]) <span class="op">&amp;</span> (t[<span class="va">None</span>, :] <span class="op">&lt;=</span> T <span class="op">-</span> efold[:, <span class="va">None</span>])</span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>    valid_frac <span class="op">=</span> coi.mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>    usable <span class="op">=</span> valid_frac <span class="op">&gt;=</span> <span class="bu">max</span>(min_valid_frac, <span class="fl">1e-9</span>)</span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>    mp <span class="op">=</span> np.full(n_freqs, np.nan)</span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> usable.<span class="bu">any</span>():</span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>        mp[usable] <span class="op">=</span> np.nanmean(np.where(coi, power, np.nan)[usable], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> np.nansum(mp)</span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>    mp_rel <span class="op">=</span> mp <span class="op">/</span> total <span class="cf">if</span> total <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> mp</span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> {<span class="st">"clip_dur_s"</span>: <span class="bu">float</span>(T)}</span>
+<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, (a, b) <span class="kw">in</span> <span class="bu">enumerate</span>(bands):</span>
+<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>        key <span class="op">=</span> <span class="ss">f"band</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a>        upper <span class="op">=</span> (freqs <span class="op">&lt;=</span> b) <span class="cf">if</span> np.isclose(b, fmax) <span class="cf">else</span> (freqs <span class="op">&lt;</span> b)</span>
+<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a>        m <span class="op">=</span> (freqs <span class="op">&gt;=</span> a) <span class="op">&amp;</span> upper</span>
+<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a>        mu <span class="op">=</span> m <span class="op">&amp;</span> usable</span>
+<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a>        out[<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">_coverage"</span>] <span class="op">=</span> <span class="bu">float</span>(mu.<span class="bu">sum</span>() <span class="op">/</span> <span class="bu">max</span>(m.<span class="bu">sum</span>(), <span class="dv">1</span>))</span>
+<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mu.<span class="bu">sum</span>() <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> np.nansum(mp_rel[mu]) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> k <span class="kw">in</span> (<span class="st">"band_power"</span>, <span class="st">"centroid"</span>, <span class="st">"peak_freq"</span>, <span class="st">"entropy"</span>):</span>
+<span id="cb17-76"><a href="#cb17-76" aria-hidden="true" tabindex="-1"></a>                out[<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> np.nan</span>
+<span id="cb17-77"><a href="#cb17-77" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb17-78"><a href="#cb17-78" aria-hidden="true" tabindex="-1"></a>        bf, bp <span class="op">=</span> freqs[mu], mp_rel[mu]</span>
+<span id="cb17-79"><a href="#cb17-79" aria-hidden="true" tabindex="-1"></a>        p <span class="op">=</span> bp <span class="op">/</span> bp.<span class="bu">sum</span>()</span>
+<span id="cb17-80"><a href="#cb17-80" aria-hidden="true" tabindex="-1"></a>        out[<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">_band_power"</span>] <span class="op">=</span> <span class="bu">float</span>(bp.<span class="bu">sum</span>())</span>
+<span id="cb17-81"><a href="#cb17-81" aria-hidden="true" tabindex="-1"></a>        out[<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">_centroid"</span>] <span class="op">=</span> <span class="bu">float</span>(np.<span class="bu">sum</span>(bf <span class="op">*</span> p))</span>
+<span id="cb17-82"><a href="#cb17-82" aria-hidden="true" tabindex="-1"></a>        <span class="co"># interior local maxima of the full spectrum that fall inside this band</span></span>
+<span id="cb17-83"><a href="#cb17-83" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> np.where(mu)[<span class="dv">0</span>]</span>
+<span id="cb17-84"><a href="#cb17-84" aria-hidden="true" tabindex="-1"></a>        peaks <span class="op">=</span> [k <span class="cf">for</span> k <span class="kw">in</span> idx <span class="cf">if</span> <span class="dv">0</span> <span class="op">&lt;</span> k <span class="op">&lt;</span> n_freqs <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb17-85"><a href="#cb17-85" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">and</span> mp_rel[k] <span class="op">&gt;</span> mp_rel[k <span class="op">-</span> <span class="dv">1</span>] <span class="kw">and</span> mp_rel[k] <span class="op">&gt;</span> mp_rel[k <span class="op">+</span> <span class="dv">1</span>]]</span>
+<span id="cb17-86"><a href="#cb17-86" aria-hidden="true" tabindex="-1"></a>        out[<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">_peak_freq"</span>] <span class="op">=</span> (<span class="bu">float</span>(freqs[<span class="bu">max</span>(peaks, key<span class="op">=</span><span class="kw">lambda</span> k: mp_rel[k])])</span>
+<span id="cb17-87"><a href="#cb17-87" aria-hidden="true" tabindex="-1"></a>                                   <span class="cf">if</span> peaks <span class="cf">else</span> np.nan)</span>
+<span id="cb17-88"><a href="#cb17-88" aria-hidden="true" tabindex="-1"></a>        out[<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">_entropy"</span>] <span class="op">=</span> (<span class="bu">float</span>(<span class="op">-</span>np.<span class="bu">sum</span>(p <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>)) <span class="op">/</span> np.log(<span class="bu">len</span>(p)))</span>
+<span id="cb17-89"><a href="#cb17-89" aria-hidden="true" tabindex="-1"></a>                                 <span class="cf">if</span> <span class="bu">len</span>(p) <span class="op">&gt;</span> <span class="dv">1</span> <span class="cf">else</span> np.nan)</span>
+<span id="cb17-90"><a href="#cb17-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-91"><a href="#cb17-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> plot:</span>
+<span id="cb17-92"><a href="#cb17-92" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb17-93"><a href="#cb17-93" aria-hidden="true" tabindex="-1"></a>        fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">7</span>),</span>
+<span id="cb17-94"><a href="#cb17-94" aria-hidden="true" tabindex="-1"></a>                                       gridspec_kw<span class="op">=</span>{<span class="st">"height_ratios"</span>: [<span class="dv">3</span>, <span class="dv">1</span>]})</span>
+<span id="cb17-95"><a href="#cb17-95" aria-hidden="true" tabindex="-1"></a>        im <span class="op">=</span> ax1.imshow(np.log10(power <span class="op">+</span> <span class="fl">1e-12</span>), aspect<span class="op">=</span><span class="st">"auto"</span>, origin<span class="op">=</span><span class="st">"lower"</span>,</span>
+<span id="cb17-96"><a href="#cb17-96" aria-hidden="true" tabindex="-1"></a>                        extent<span class="op">=</span>[time[<span class="dv">0</span>], time[<span class="op">-</span><span class="dv">1</span>], freqs[<span class="dv">0</span>], freqs[<span class="op">-</span><span class="dv">1</span>]], cmap<span class="op">=</span><span class="st">"viridis"</span>)</span>
+<span id="cb17-97"><a href="#cb17-97" aria-hidden="true" tabindex="-1"></a>        ax1.fill_betweenx(freqs, time[<span class="dv">0</span>], np.minimum(time[<span class="dv">0</span>] <span class="op">+</span> efold, time[<span class="op">-</span><span class="dv">1</span>]),</span>
+<span id="cb17-98"><a href="#cb17-98" aria-hidden="true" tabindex="-1"></a>                          color<span class="op">=</span><span class="st">"w"</span>, alpha<span class="op">=</span><span class="fl">0.35</span>, lw<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb17-99"><a href="#cb17-99" aria-hidden="true" tabindex="-1"></a>        ax1.fill_betweenx(freqs, np.maximum(time[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> efold, time[<span class="dv">0</span>]), time[<span class="op">-</span><span class="dv">1</span>],</span>
+<span id="cb17-100"><a href="#cb17-100" aria-hidden="true" tabindex="-1"></a>                          color<span class="op">=</span><span class="st">"w"</span>, alpha<span class="op">=</span><span class="fl">0.35</span>, lw<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb17-101"><a href="#cb17-101" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (a, b) <span class="kw">in</span> bands:</span>
+<span id="cb17-102"><a href="#cb17-102" aria-hidden="true" tabindex="-1"></a>            ax1.axhline(a, color<span class="op">=</span><span class="st">"w"</span>, lw<span class="op">=</span><span class="fl">0.8</span>, ls<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb17-103"><a href="#cb17-103" aria-hidden="true" tabindex="-1"></a>            ax1.axhline(b, color<span class="op">=</span><span class="st">"w"</span>, lw<span class="op">=</span><span class="fl">0.8</span>, ls<span class="op">=</span><span class="st">"--"</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb17-104"><a href="#cb17-104" aria-hidden="true" tabindex="-1"></a>        fig.colorbar(im, ax<span class="op">=</span>ax1, label<span class="op">=</span><span class="st">"log10(rectified power)"</span>)</span>
+<span id="cb17-105"><a href="#cb17-105" aria-hidden="true" tabindex="-1"></a>        ax1.set_ylabel(<span class="st">"Frequency (Hz)"</span>)</span>
+<span id="cb17-106"><a href="#cb17-106" aria-hidden="true" tabindex="-1"></a>        ax1.set_xlabel(<span class="st">"Time (s)"</span>)</span>
+<span id="cb17-107"><a href="#cb17-107" aria-hidden="true" tabindex="-1"></a>        ax1.set_title(<span class="st">"Wavelet scalogram of speed (shaded = cone of influence)"</span>)</span>
+<span id="cb17-108"><a href="#cb17-108" aria-hidden="true" tabindex="-1"></a>        ax2.semilogy(freqs, mp_rel, color<span class="op">=</span><span class="st">"k"</span>)</span>
+<span id="cb17-109"><a href="#cb17-109" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, (a, b) <span class="kw">in</span> <span class="bu">enumerate</span>(bands):</span>
+<span id="cb17-110"><a href="#cb17-110" aria-hidden="true" tabindex="-1"></a>            ax2.axvspan(a, b, alpha<span class="op">=</span><span class="fl">0.15</span>, color<span class="op">=</span><span class="ss">f"C</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>, label<span class="op">=</span><span class="ss">f"band</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>a<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>b<span class="sc">}</span><span class="ss"> Hz"</span>)</span>
+<span id="cb17-111"><a href="#cb17-111" aria-hidden="true" tabindex="-1"></a>        ax2.set_xlabel(<span class="st">"Frequency (Hz)"</span>)</span>
+<span id="cb17-112"><a href="#cb17-112" aria-hidden="true" tabindex="-1"></a>        ax2.set_ylabel(<span class="st">"rel. power (log)"</span>)</span>
+<span id="cb17-113"><a href="#cb17-113" aria-hidden="true" tabindex="-1"></a>        ax2.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb17-114"><a href="#cb17-114" aria-hidden="true" tabindex="-1"></a>        plt.tight_layout()</span>
+<span id="cb17-115"><a href="#cb17-115" aria-hidden="true" tabindex="-1"></a>        plt.show()</span>
+<span id="cb17-116"><a href="#cb17-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-117"><a href="#cb17-117" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb17-118"><a href="#cb17-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-119"><a href="#cb17-119" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(wavelet_rhythmicity(sample_kin1[<span class="st">'right_wrist_speed'</span>], sample_kin1[<span class="st">'time_s'</span>], fs<span class="op">=</span>sr1, plot<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb17-120"><a href="#cb17-120" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(wavelet_rhythmicity(sample_kin2[<span class="st">'right_wrist_speed'</span>], sample_kin2[<span class="st">'time_s'</span>], fs<span class="op">=</span>sr2, plot<span class="op">=</span><span class="va">True</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_FeatureExtract_Sapiens_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'clip_dur_s': 4.7, 'band1_coverage': 1.0, 'band1_band_power': 0.6958520473167181, 'band1_centroid': 1.3977772295651216, 'band1_peak_freq': nan, 'band1_entropy': 0.9867926464341915, 'band2_coverage': 1.0, 'band2_band_power': 0.21571002954323015, 'band2_centroid': 2.4042224142663455, 'band2_peak_freq': nan, 'band2_entropy': 0.9833969195705988, 'band3_coverage': 1.0, 'band3_band_power': 0.08843792314005174, 'band3_centroid': 3.6486187427851537, 'band3_peak_freq': nan, 'band3_entropy': 0.9395423088742787}</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_FeatureExtract_Sapiens_files/figure-html/cell-12-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'clip_dur_s': 3.933333333333333, 'band1_coverage': 1.0, 'band1_band_power': 0.8287773077989681, 'band1_centroid': 1.341693458203124, 'band1_peak_freq': 1.271186440677966, 'band1_entropy': 0.9533436887054109, 'band2_coverage': 1.0, 'band2_band_power': 0.09422473584067466, 'band2_centroid': 2.4381626649996724, 'band2_peak_freq': 2.694915254237288, 'band2_entropy': 0.9883081888666602, 'band3_coverage': 1.0, 'band3_band_power': 0.07699795636035728, 'band3_centroid': 3.7100292279155096, 'band3_peak_freq': nan, 'band3_entropy': 0.956930260407824}</code></pre>
+</div>
+</div>
+</section>
+<section id="proximal-distal-use" class="level3">
+<h3 class="anchored" data-anchor-id="proximal-distal-use">Proximal-distal use</h3>
+<div id="44c93c61" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Proximalization index (rel/abs)   </span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># wrist absolute speed includes elbow transport; wrist relspeed is elbow-removed articulation.</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ratio -&gt; 0 : wrist just carried by the arm (proximalized).  ratio -&gt; 1 : independent forearm</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># rotation (distal). Mean over available arm joints that have a relspeed column.</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_proximalization_index(df):</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate the proximalization index by computing the ratio of relative to absolute speeds</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">    for wrist and elbow joints across both sides. Returns the mean ratio or NaN if no valid data."""</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    ratios <span class="op">=</span> []</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> side <span class="kw">in</span> SIDES:</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> (<span class="st">"wrist"</span>, <span class="st">"elbow"</span>):</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            ab, rel <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>side<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">_speed"</span>, <span class="ss">f"</span><span class="sc">{</span>side<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">_relspeed"</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> ab <span class="kw">in</span> df.columns <span class="kw">and</span> rel <span class="kw">in</span> df.columns:</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                a <span class="op">=</span> df[ab].to_numpy()<span class="op">;</span> r <span class="op">=</span> df[rel].to_numpy()</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>                denom <span class="op">=</span> np.nanmedian(a)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> denom <span class="op">&gt;</span> <span class="fl">1e-9</span>:</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>                    ratios.append(np.nanmedian(r) <span class="op">/</span> denom)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.nanmean(ratios) <span class="cf">if</span> ratios <span class="cf">else</span> np.nan</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_proximalization_index(sample_kin1))</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_proximalization_index(sample_kin2))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1.258625053143352
+0.7178132922547423</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="hand-handshape-features" class="level2">
+<h2 class="anchored" data-anchor-id="hand-handshape-features">2 Hand / handshape features</h2>
+<p>Here we calculate handshape geometry a finger independence.</p>
+<section id="distances-aperture-opposition-etc." class="level3">
+<h3 class="anchored" data-anchor-id="distances-aperture-opposition-etc.">Distances (aperture, opposition etc.)</h3>
+<div id="6834bb33" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Handshape geometry from distance columns   </span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_adjacent_fingertip_spread(df, side):</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Mean &amp; std of adjacent fingertip gaps (thumb-index, index-middle, ...)."""</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [dist_col(side, <span class="dv">4</span>, <span class="dv">8</span>), dist_col(side, <span class="dv">8</span>, <span class="dv">12</span>),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            dist_col(side, <span class="dv">12</span>, <span class="dv">16</span>), dist_col(side, <span class="dv">16</span>, <span class="dv">20</span>)]</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> cols <span class="cf">if</span> c <span class="kw">in</span> df.columns]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> cols: <span class="cf">return</span> np.nan, np.nan</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[cols].mean().mean(), df[cols].mean().std()</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_thumb_index_distance(df, side):                <span class="co"># aperture / pinch</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate mean and standard deviation of thumb-index distance."""</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> dist_col(side, <span class="dv">4</span>, <span class="dv">8</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (df[c].mean(), df[c].std()) <span class="cf">if</span> c <span class="kw">in</span> df.columns <span class="cf">else</span> (np.nan, np.nan)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_mcp_tip_distance(df, side):                     <span class="co"># overall flexion (tip-&gt;MCP)</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Mean &amp; std of MCP-tip distances (thumb, index, middle, ring, pinky)."""</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [dist_col(side, FINGER_TIP_ID[f], FINGER_MCP_ID[f])</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> f <span class="kw">in</span> [<span class="st">"thumb"</span>,<span class="st">"index"</span>,<span class="st">"middle"</span>,<span class="st">"ring"</span>,<span class="st">"pinky"</span>]]</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> cols <span class="cf">if</span> c <span class="kw">in</span> df.columns]</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> cols: <span class="cf">return</span> np.nan, np.nan</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[cols].mean().mean(), df[cols].mean().std()</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="co"># thumb opposition — thumb tip to pinky MCP (a distinct phonological handshape axis)</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_thumb_opposition(df, side):</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate mean and standard deviation of thumb tip to pinky MCP distance."""</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> dist_col(side, <span class="dv">4</span>, FINGER_MCP_ID[<span class="st">"pinky"</span>])</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (df[c].mean(), df[c].std()) <span class="cf">if</span> c <span class="kw">in</span> df.columns <span class="cf">else</span> (np.nan, np.nan)</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="co"># spread</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_adjacent_fingertip_spread(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_adjacent_fingertip_spread(sample_dist2, <span class="st">"right"</span>))</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="co"># thumb-index distance</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_thumb_index_distance(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_thumb_index_distance(sample_dist2, <span class="st">"right"</span>))</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="co"># mcp-tip distance</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_mcp_tip_distance(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_mcp_tip_distance(sample_dist2, <span class="st">"right"</span>))</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a><span class="co"># thumb opposition</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_thumb_opposition(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_thumb_opposition(sample_dist2, <span class="st">"right"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(0.5809838473972457, 0.35844320714420225)
+(0.32176487805248766, 0.07646249629200942)
+(0.8898069197224443, 0.08761290403635011)
+(0.33737801544180784, 0.17732113856515475)
+(1.3351732656729083, 0.4006623136065549)
+(0.9464444113834007, 0.1227795583742923)
+(1.3941600631611908, 0.0653580536710373)
+(1.394730053088754, 0.759308288995861)</code></pre>
+</div>
+</div>
+</section>
+<section id="handshape-size-and-variability" class="level3">
+<h3 class="anchored" data-anchor-id="handshape-size-and-variability">Handshape size and variability</h3>
+<div id="ada761c6" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Handshape size &amp; variability  </span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_handshape_size(df, side):</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate mean and standard deviation of handshape features."""</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="st">"r"</span> <span class="cf">if</span> side <span class="op">==</span> <span class="st">"right"</span> <span class="cf">else</span> <span class="st">"l"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> df.columns</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> c.startswith(p) <span class="kw">and</span> <span class="st">"_"</span> <span class="kw">in</span> c</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">and</span> <span class="kw">not</span> c.endswith((<span class="st">"_x"</span>,<span class="st">"_y"</span>,<span class="st">"_speed"</span>,<span class="st">"_acc"</span>,<span class="st">"_jerk"</span>))</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">and</span> df[c].dtype <span class="op">!=</span> <span class="bu">object</span>]</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#print(cols)</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> cols: <span class="cf">return</span> np.nan, np.nan</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[cols].mean(axis<span class="op">=</span><span class="dv">1</span>).mean(), df[cols].std(axis<span class="op">=</span><span class="dv">1</span>).mean()</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_handshape_variability(df, side):</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Total temporal SD of the adjacent-fingertip gaps = how much handshape changes."""</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [dist_col(side, <span class="dv">4</span>, <span class="dv">8</span>), dist_col(side, <span class="dv">8</span>, <span class="dv">12</span>),</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>            dist_col(side, <span class="dv">12</span>, <span class="dv">16</span>), dist_col(side, <span class="dv">16</span>, <span class="dv">20</span>)]</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> cols <span class="cf">if</span> c <span class="kw">in</span> df.columns]</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[cols].std().<span class="bu">sum</span>() <span class="cf">if</span> cols <span class="cf">else</span> np.nan</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co"># handshape size</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"handshape size"</span>)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_handshape_size(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_handshape_size(sample_dist2, <span class="st">"right"</span>))</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="co"># handshape variability</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"handshape variability"</span>)</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_handshape_variability(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_handshape_variability(sample_dist2, <span class="st">"right"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>handshape size
+(1.4440667397376332, 0.6784694510187611)
+(1.408426044911973, 0.8112949697814014)
+handshape variability
+0.2548214087530285
+0.6577463943016726</code></pre>
+</div>
+</div>
+</section>
+<section id="fingertip-dynamics" class="level3">
+<h3 class="anchored" data-anchor-id="fingertip-dynamics">Fingertip dynamics</h3>
+<div id="f91a328f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fingertip dynamics </span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _tip_mcp_speed_cols(df, side):</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Identifies and returns columns in the DataFrame that contain speed data between fingertip and MCP joints for specified fingers (excluding thumb)."""</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [<span class="ss">f"</span><span class="sc">{</span>dist_col(side, FINGER_TIP_ID[f], FINGER_MCP_ID[f])<span class="sc">}</span><span class="ss">_speed"</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> f <span class="kw">in</span> [<span class="st">"index"</span>,<span class="st">"middle"</span>,<span class="st">"ring"</span>,<span class="st">"pinky"</span>]]     <span class="co"># thumb handled separately</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [c <span class="cf">for</span> c <span class="kw">in</span> cols <span class="cf">if</span> c <span class="kw">in</span> df.columns]</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_fingertip_speed(df, side):                      </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculates the mean and standard deviation of fingertip speed between MCP and fingertip joints for specified fingers (excluding thumb)."""</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> _tip_mcp_speed_cols(df, side)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> cols: <span class="cf">return</span> np.nan, np.nan</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[cols].mean().mean(), df[cols].mean().std()</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_fingertip_intermittency(df, side):</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Flexion smoothness: dimensionless jerk (intermittency) of each finger's</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co">    tip-MCP flexion signal, averaged over index, middle, ring and pinky (thumb excluded).</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">    Uses the same get_intermittency() as the gross arm signal, so fine and gross</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co">    smoothness are on the same scale (higher = less smooth). Replaces the old</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">    mean of signed jerk, which telescoped to (acc_end - acc_start) / duration.</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    vals <span class="op">=</span> []</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> sp_col <span class="kw">in</span> _tip_mcp_speed_cols(df, side):</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>        j_col <span class="op">=</span> sp_col.replace(<span class="st">"_speed"</span>, <span class="st">"_jerk"</span>)</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> j_col <span class="kw">not</span> <span class="kw">in</span> df.columns:</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>        sub <span class="op">=</span> df[[sp_col, j_col]].dropna()</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(sub) <span class="op">&lt;</span> <span class="dv">3</span>:</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> get_intermittency(sub[j_col].to_numpy(), sub[sp_col].to_numpy())</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> np.isfinite(v):</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>            vals.append(v)</span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean(vals) <span class="cf">if</span> vals <span class="cf">else</span> np.nan</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"fingertip speed"</span>)</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_fingertip_speed(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_fingertip_speed(sample_dist2, <span class="st">"right"</span>))</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"fingertip jerk"</span>)</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_fingertip_intermittency(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_fingertip_intermittency(sample_dist2, <span class="st">"right"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>fingertip speed
+(0.08348826695083078, 0.0092545175978347)
+(0.9986014736502119, 0.10838808036282549)
+fingertip jerk
+25.717381615194718
+25.678158580892443</code></pre>
+</div>
+</div>
+</section>
+<section id="finger-independence" class="level3">
+<h3 class="anchored" data-anchor-id="finger-independence">Finger independence</h3>
+<p>Similar to <span class="citation" data-cites="yinAmericanSignLanguage2024">Yin, Regier, and Klein (<a href="#ref-yinAmericanSignLanguage2024" role="doc-biblioref">2024</a>)</span></p>
+<div id="7940da55" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Finger independence   </span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlate FLEXION speeds (tip-&gt;MCP distance speed), which have wrist motion removed.</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># independence = 1 - mean pairwise corr.  High = fingers move independently (native-signer-like).</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_finger_independence(df, side):</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    pairs <span class="op">=</span> [(<span class="st">"index"</span>,<span class="st">"middle"</span>), (<span class="st">"middle"</span>,<span class="st">"ring"</span>), (<span class="st">"ring"</span>,<span class="st">"pinky"</span>)]</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    corrs <span class="op">=</span> []</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> a, b <span class="kw">in</span> pairs:</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        ca <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>dist_col(side, FINGER_TIP_ID[a], FINGER_MCP_ID[a])<span class="sc">}</span><span class="ss">_speed"</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        cb <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>dist_col(side, FINGER_TIP_ID[b], FINGER_MCP_ID[b])<span class="sc">}</span><span class="ss">_speed"</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ca <span class="kw">in</span> df.columns <span class="kw">and</span> cb <span class="kw">in</span> df.columns:</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>            corrs.append(df[ca].corr(df[cb]))</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">-</span> np.nanmean(corrs) <span class="cf">if</span> corrs <span class="cf">else</span> np.nan</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"finger indepenedence"</span>)</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_finger_independence(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_finger_independence(sample_dist2, <span class="st">"right"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>finger indepenedence
+0.24170749068529285
+0.41335623518111664</code></pre>
+</div>
+</div>
+</section>
+<section id="speed-entropy" class="level3">
+<h3 class="anchored" data-anchor-id="speed-entropy">Speed entropy</h3>
+<div id="9bcf997f" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Speed entropy of finger flexion (variability of the signal)   </span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_finger_speed_entropy(df, side, finger<span class="op">=</span><span class="st">"index"</span>):</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate the entropy of finger speed variability from distance data."""</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>dist_col(side, FINGER_TIP_ID[finger], FINGER_MCP_ID[finger])<span class="sc">}</span><span class="ss">_speed"</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> c <span class="kw">not</span> <span class="kw">in</span> df.columns: <span class="cf">return</span> np.nan</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    hist, _ <span class="op">=</span> np.histogram(df[c].dropna(), bins<span class="op">=</span><span class="dv">30</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> entropy(hist <span class="op">+</span> <span class="fl">1e-8</span>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_finger_speed_entropy(sample_dist1, <span class="st">"right"</span>))</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(feature_finger_speed_entropy(sample_dist2, <span class="st">"right"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2.7785363046116673
+3.1296620596170284</code></pre>
+</div>
+</div>
+<p>Here we provide a conceptual overview in a visualized way</p>
+<div id="a048bd80" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> importlib</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> helpers <span class="im">import</span> feature_overview</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>importlib.<span class="bu">reload</span>(feature_overview)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>feature_overview.plot_feature_overview(out<span class="op">=</span><span class="st">"plots/feature_overview.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<div>
+<figure class="figure">
+<p><img src="3_FeatureExtract_Sapiens_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_FeatureExtract_Sapiens_files/figure-html/cell-19-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="per-file-assembly" class="level2">
+<h2 class="anchored" data-anchor-id="per-file-assembly">3 Per-file assembly</h2>
+<p>To simplify the interpretation in the later steps, we will assign to each feature (into the name) whether it belongs to gross or fine kinematics and to which category it belongs from: magnitude, variability, rhythm, coordination, proximal-distal, smoothness and handshape.</p>
+<p><code>extract_gross_features</code> and <code>extract_hand_features</code> each return a flat dict; <code>extract_all</code> merges them for one file.</p>
+<div id="4ea55e07" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _mean_sides(fn, <span class="op">*</span>dfs):</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Call fn(*dfs, side) for each side, return nan-mean of the (scalar or tuple) results.</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Handles fns that return a scalar OR a (mean, std) tuple -&gt; returns pooled scalar/tuple."""</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    vals <span class="op">=</span> [fn(<span class="op">*</span>dfs, side) <span class="cf">for</span> side <span class="kw">in</span> SIDES]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(vals[<span class="dv">0</span>], <span class="bu">tuple</span>):</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">tuple</span>(np.nanmean([v[i] <span class="cf">for</span> v <span class="kw">in</span> vals]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(vals[<span class="dv">0</span>])))</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.nanmean(vals)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fname(name: <span class="bu">str</span>, domain: <span class="bu">str</span>, family: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Format a feature column name as domain__family__name."""</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>domain<span class="sc">}</span><span class="ss">__</span><span class="sc">{</span>family<span class="sc">}</span><span class="ss">__</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_gross_features(df, fs):</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> {}</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># aggregate arm-speed descriptives (uses your total_arm_* columns)</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col, tag <span class="kw">in</span> [(TOTAL_ARM_SPEED, <span class="st">"arm_speed"</span>), (TOTAL_ARM_ACC, <span class="st">"arm_acc"</span>)]:</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> col <span class="kw">in</span> df.columns:</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_Gmean"</span>, <span class="st">"gross"</span>, <span class="st">"magnitude"</span>)]   <span class="op">=</span> df[col].mean()</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_Gstd"</span>,  <span class="st">"gross"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> df[col].std()</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>            pk <span class="op">=</span> compute_peaks(df, col, fs)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_peak_mean"</span>, <span class="st">"gross"</span>, <span class="st">"magnitude"</span>)]   <span class="op">=</span> pk[<span class="st">"peak_mean"</span>]</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_peak_std"</span>,  <span class="st">"gross"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> pk[<span class="st">"peak_std"</span>]</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_peak_n"</span>,    <span class="st">"gross"</span>, <span class="st">"rhythm"</span>)]      <span class="op">=</span> pk[<span class="st">"peak_n"</span>]</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_peak_rate"</span>, <span class="st">"gross"</span>, <span class="st">"rhythm"</span>)]      <span class="op">=</span> pk[<span class="st">"peak_rate"</span>]</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">_mod_depth"</span>, <span class="st">"gross"</span>, <span class="st">"rhythm"</span>)]      <span class="op">=</span> pk[<span class="st">"mod_depth"</span>]</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># integral / smoothness / rhythm on the total_arm signal</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> TOTAL_ARM_SPEED <span class="kw">in</span> df.columns:</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>        f[fname(<span class="st">"arm_speed_integral"</span>, <span class="st">"gross"</span>, <span class="st">"magnitude"</span>)] <span class="op">=</span> np.trapz(df[TOTAL_ARM_SPEED].values, dx<span class="op">=</span><span class="dv">1</span><span class="op">/</span>fs)</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>        f[fname(<span class="st">"arm_speed_sampen"</span>, <span class="st">"gross"</span>, <span class="st">"rhythm"</span>)] <span class="op">=</span> ent.sample_entropy(df[TOTAL_ARM_SPEED].values, order<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>        f[fname(<span class="st">"arm_intermittency"</span>, <span class="st">"gross"</span>, <span class="st">"smoothness"</span>)] <span class="op">=</span> get_intermittency(</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>            df.get(TOTAL_ARM_JERK, pd.Series(dtype<span class="op">=</span><span class="bu">float</span>)), df[TOTAL_ARM_SPEED])</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>        f[fname(<span class="st">"arm_sparc"</span>, <span class="st">"gross"</span>, <span class="st">"smoothness"</span>)] <span class="op">=</span> get_sparc(df[TOTAL_ARM_SPEED].values, fs)</span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k, v <span class="kw">in</span> wavelet_rhythmicity(df[TOTAL_ARM_SPEED], df[TIME_COL], fs<span class="op">=</span>fs).items():</span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>            f[fname(<span class="ss">f"</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">_totalarm"</span>, <span class="st">"gross"</span>, <span class="st">"rhythm"</span>)] <span class="op">=</span> v</span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># BBMV</span></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>    bbmv_total <span class="op">=</span> np.nansum([get_bbmv(df, side, j) <span class="cf">for</span> side <span class="kw">in</span> SIDES <span class="cf">for</span> j <span class="kw">in</span> ARM_JOINTS])</span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"bbmv_arms_total"</span>, <span class="st">"gross"</span>, <span class="st">"magnitude"</span>)] <span class="op">=</span> bbmv_total</span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># coordination — intrinsically bilateral, computed once (NOT side-averaged)</span></span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"arm_coupling"</span>,  <span class="st">"gross"</span>, <span class="st">"coordination"</span>)] <span class="op">=</span> compute_arm_coupling(df)</span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"arm_asymmetry"</span>, <span class="st">"gross"</span>, <span class="st">"coordination"</span>)] <span class="op">=</span> compute_arm_asymmetry(df)</span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"proximalization_index"</span>, <span class="st">"gross"</span>, <span class="st">"proxdist"</span>)] <span class="op">=</span> get_proximalization_index(df)  <span class="co"># already means over sides internally</span></span>
+<span id="cb33-45"><a href="#cb33-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> f</span>
+<span id="cb33-46"><a href="#cb33-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_hand_features(df_kin, df_dist):</span>
+<span id="cb33-49"><a href="#cb33-49" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> {}</span>
+<span id="cb33-50"><a href="#cb33-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># geometry / handshape: mean over L and R ---</span></span>
+<span id="cb33-51"><a href="#cb33-51" aria-hidden="true" tabindex="-1"></a>    m, sd <span class="op">=</span> _mean_sides(feature_adjacent_fingertip_spread, df_dist)</span>
+<span id="cb33-52"><a href="#cb33-52" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"fingertip_spread_mean"</span>, <span class="st">"fine"</span>, <span class="st">"handshape"</span>)]   <span class="op">=</span> m</span>
+<span id="cb33-53"><a href="#cb33-53" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"fingertip_spread_std"</span>,  <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> sd</span>
+<span id="cb33-54"><a href="#cb33-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-55"><a href="#cb33-55" aria-hidden="true" tabindex="-1"></a>    m, sd <span class="op">=</span> _mean_sides(feature_thumb_index_distance, df_dist)</span>
+<span id="cb33-56"><a href="#cb33-56" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"thumb_index_mean"</span>, <span class="st">"fine"</span>, <span class="st">"handshape"</span>)]   <span class="op">=</span> m</span>
+<span id="cb33-57"><a href="#cb33-57" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"thumb_index_std"</span>,  <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> sd</span>
+<span id="cb33-58"><a href="#cb33-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-59"><a href="#cb33-59" aria-hidden="true" tabindex="-1"></a>    m, sd <span class="op">=</span> _mean_sides(feature_mcp_tip_distance, df_dist)</span>
+<span id="cb33-60"><a href="#cb33-60" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"mcp_tip_mean"</span>, <span class="st">"fine"</span>, <span class="st">"handshape"</span>)]   <span class="op">=</span> m</span>
+<span id="cb33-61"><a href="#cb33-61" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"mcp_tip_std"</span>,  <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> sd</span>
+<span id="cb33-62"><a href="#cb33-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-63"><a href="#cb33-63" aria-hidden="true" tabindex="-1"></a>    m, sd <span class="op">=</span> _mean_sides(feature_thumb_opposition, df_dist)</span>
+<span id="cb33-64"><a href="#cb33-64" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"thumb_opposition_mean"</span>, <span class="st">"fine"</span>, <span class="st">"handshape"</span>)]   <span class="op">=</span> m</span>
+<span id="cb33-65"><a href="#cb33-65" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"thumb_opposition_std"</span>,  <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> sd</span>
+<span id="cb33-66"><a href="#cb33-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-67"><a href="#cb33-67" aria-hidden="true" tabindex="-1"></a>    m, sd <span class="op">=</span> _mean_sides(feature_handshape_size, df_dist)</span>
+<span id="cb33-68"><a href="#cb33-68" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"handshape_size_mean"</span>, <span class="st">"fine"</span>, <span class="st">"handshape"</span>)]   <span class="op">=</span> m</span>
+<span id="cb33-69"><a href="#cb33-69" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"handshape_size_std"</span>,  <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> sd</span>
+<span id="cb33-70"><a href="#cb33-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-71"><a href="#cb33-71" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"handshape_variability"</span>, <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> np.nanmean(</span>
+<span id="cb33-72"><a href="#cb33-72" aria-hidden="true" tabindex="-1"></a>        [feature_handshape_variability(df_dist, side) <span class="cf">for</span> side <span class="kw">in</span> SIDES])</span>
+<span id="cb33-73"><a href="#cb33-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-74"><a href="#cb33-74" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dynamics (gross-independent): mean over L and R </span></span>
+<span id="cb33-75"><a href="#cb33-75" aria-hidden="true" tabindex="-1"></a>    m, sd <span class="op">=</span> _mean_sides(feature_fingertip_speed, df_dist)</span>
+<span id="cb33-76"><a href="#cb33-76" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"flexion_speed_mean"</span>, <span class="st">"fine"</span>, <span class="st">"magnitude"</span>)]   <span class="op">=</span> m</span>
+<span id="cb33-77"><a href="#cb33-77" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"flexion_speed_std"</span>,  <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> sd</span>
+<span id="cb33-78"><a href="#cb33-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-79"><a href="#cb33-79" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"flexion_intermittency"</span>, <span class="st">"fine"</span>, <span class="st">"smoothness"</span>)] <span class="op">=</span> np.nanmean(</span>
+<span id="cb33-80"><a href="#cb33-80" aria-hidden="true" tabindex="-1"></a>        [feature_fingertip_intermittency(df_dist, side) <span class="cf">for</span> side <span class="kw">in</span> SIDES])</span>
+<span id="cb33-81"><a href="#cb33-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-82"><a href="#cb33-82" aria-hidden="true" tabindex="-1"></a>    <span class="co"># coordination — average the two hands' independence/correlations </span></span>
+<span id="cb33-83"><a href="#cb33-83" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"finger_independence"</span>, <span class="st">"fine"</span>, <span class="st">"coordination"</span>)] <span class="op">=</span> np.nanmean(</span>
+<span id="cb33-84"><a href="#cb33-84" aria-hidden="true" tabindex="-1"></a>        [feature_finger_independence(df_dist, side) <span class="cf">for</span> side <span class="kw">in</span> SIDES])</span>
+<span id="cb33-85"><a href="#cb33-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-86"><a href="#cb33-86" aria-hidden="true" tabindex="-1"></a>    f[fname(<span class="st">"flexion_entropy"</span>, <span class="st">"fine"</span>, <span class="st">"variability"</span>)] <span class="op">=</span> np.nanmean(</span>
+<span id="cb33-87"><a href="#cb33-87" aria-hidden="true" tabindex="-1"></a>        [feature_finger_speed_entropy(df_dist, side, <span class="st">"index"</span>) <span class="cf">for</span> side <span class="kw">in</span> SIDES])</span>
+<span id="cb33-88"><a href="#cb33-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> f</span>
+<span id="cb33-89"><a href="#cb33-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-90"><a href="#cb33-90" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_all(df_kin, df_dist, fs):</span>
+<span id="cb33-91"><a href="#cb33-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="op">**</span>extract_gross_features(df_kin, fs), <span class="op">**</span>extract_hand_features(df_kin, df_dist)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="batch-loop" class="level2">
+<h2 class="anchored" data-anchor-id="batch-loop">4 Batch loop</h2>
+<div id="1fb9ef20" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>processedfolder <span class="op">=</span> os.path.join(curfolder, <span class="st">"Sapiens_Processed"</span>)   <span class="co"># &lt;-- set curfolder above</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>datasetsfolder  <span class="op">=</span> os.path.join(curfolder, <span class="st">"Datasets"</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>kin_files <span class="op">=</span> <span class="bu">sorted</span>(glob.glob(os.path.join(processedfolder, <span class="st">"*_kinematics.csv"</span>)))</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> kin_file <span class="kw">in</span> kin_files:</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"processing"</span>, os.path.basename(kin_file))</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> os.path.basename(kin_file).startswith(<span class="st">'LP'</span>):</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    dist_file <span class="op">=</span> kin_file.replace(<span class="st">"_kinematics.csv"</span>, <span class="st">"_hand_distances.csv"</span>)</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(dist_file):</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"no distance file for"</span>, os.path.basename(kin_file))<span class="op">;</span> <span class="cf">continue</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    df_kin  <span class="op">=</span> pd.read_csv(kin_file)</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>    df_dist <span class="op">=</span> pd.read_csv(dist_file)</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>    fid <span class="op">=</span> df_kin[<span class="st">"FileID"</span>].iloc[<span class="dv">0</span>]</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    fs_count <span class="op">=</span> <span class="bu">round</span>(<span class="bu">len</span>(df_kin) <span class="op">/</span> (df_kin[TIME_COL].iloc[<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> df_kin[TIME_COL].iloc[<span class="dv">0</span>]))</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(fs_count)</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    fs <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>    feats <span class="op">=</span> extract_all(df_kin, df_dist, fs)</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>    feats[<span class="st">"fileID"</span>] <span class="op">=</span> fid</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># group identification</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">"GtST"</span> <span class="kw">in</span> fid:</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"group"</span>] <span class="op">=</span> fid.split(<span class="st">"_"</span>)[<span class="dv">0</span>]</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"groupID"</span>] <span class="op">=</span> <span class="st">'Sign'</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'GP'</span> <span class="kw">in</span> fid:</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"group"</span>] <span class="op">=</span> fid.split(<span class="st">"_"</span>)[<span class="dv">0</span>]</span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"groupID"</span>] <span class="op">=</span> <span class="st">'Gesture'</span></span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> fid.startswith(<span class="st">"LP"</span>) <span class="kw">or</span> fid.startswith(<span class="st">"IP"</span>):</span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"group"</span>] <span class="op">=</span> <span class="st">"_"</span>.join(fid.split(<span class="st">"_"</span>)[:<span class="dv">2</span>])</span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">"_01_"</span> <span class="kw">in</span> fid:</span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>            feats[<span class="st">"groupID"</span>] <span class="op">=</span> <span class="st">'Learner_1'</span></span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="st">"_02_"</span> <span class="kw">in</span> fid:</span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>            feats[<span class="st">"groupID"</span>] <span class="op">=</span> <span class="st">'Learner_2'</span></span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">'error'</span>)</span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">"ViCom"</span> <span class="kw">in</span> fid:</span>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"group"</span>] <span class="op">=</span> <span class="st">"ViCom"</span></span>
+<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"groupID"</span>] <span class="op">=</span> <span class="st">"Sign"</span></span>
+<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"unparsed fileID:"</span>, fid)<span class="op">;</span> <span class="cf">continue</span></span>
+<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># concept</span></span>
+<span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">"GtST"</span> <span class="kw">in</span> fid:   feats[<span class="st">"concept"</span>] <span class="op">=</span> fid.split(<span class="st">"_"</span>)[<span class="dv">2</span>].split(<span class="st">"."</span>)[<span class="dv">0</span>]</span>
+<span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="st">"GP"</span> <span class="kw">in</span> fid:   feats[<span class="st">"concept"</span>] <span class="op">=</span> fid.split(<span class="st">"_"</span>)[<span class="dv">1</span>].split(<span class="st">"."</span>)[<span class="dv">0</span>]</span>
+<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="st">"LP"</span> <span class="kw">in</span> fid <span class="kw">or</span> <span class="st">"IP"</span> <span class="kw">in</span> fid: feats[<span class="st">"concept"</span>] <span class="op">=</span> fid.split(<span class="st">"_"</span>)[<span class="dv">2</span>].split(<span class="st">"."</span>)[<span class="dv">0</span>]</span>
+<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="st">"ViCom"</span> <span class="kw">in</span> fid: feats[<span class="st">"concept"</span>] <span class="op">=</span> fid.split(<span class="st">"_"</span>)[<span class="dv">3</span>].split(<span class="st">"."</span>)[<span class="dv">0</span>]</span>
+<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">IndexError</span>:</span>
+<span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a>        feats[<span class="st">"concept"</span>] <span class="op">=</span> np.nan</span>
+<span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a>    fix <span class="op">=</span> {<span class="st">"TO-PICK"</span>:<span class="st">"TO-PLUCK"</span>, <span class="st">"TO-MOVE-HOUSES"</span>:<span class="st">"TO-MOVE"</span>, <span class="st">"VIDEO-GAME"</span>:<span class="st">"VIDEOGAME"</span>}</span>
+<span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a>    feats[<span class="st">"concept"</span>] <span class="op">=</span> fix.get(feats.get(<span class="st">"concept"</span>), feats.get(<span class="st">"concept"</span>))</span>
+<span id="cb34-61"><a href="#cb34-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-62"><a href="#cb34-62" aria-hidden="true" tabindex="-1"></a>    rows.append(feats)</span>
+<span id="cb34-63"><a href="#cb34-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-64"><a href="#cb34-64" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb34-65"><a href="#cb34-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(features_df.shape, <span class="st">"-&gt;"</span>, features_df[<span class="st">"group"</span>].value_counts().to_dict() <span class="cf">if</span> <span class="bu">len</span>(features_df) <span class="cf">else</span> <span class="st">"empty"</span>)</span>
+<span id="cb34-66"><a href="#cb34-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-67"><a href="#cb34-67" aria-hidden="true" tabindex="-1"></a>features_df[<span class="st">'pcnID'</span>] <span class="op">=</span> features_df[<span class="st">'group'</span>].<span class="bu">str</span>.split(<span class="st">"_"</span>).<span class="bu">str</span>[<span class="dv">0</span>]</span>
+<span id="cb34-68"><a href="#cb34-68" aria-hidden="true" tabindex="-1"></a>features_df.to_csv(os.path.join(datasetsfolder, <span class="st">"sapiens_features.csv"</span>), index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="aftermath" class="level2">
+<h2 class="anchored" data-anchor-id="aftermath">5 Aftermath</h2>
+<div id="b9ed26a9" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>features_df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">gross__magnitude__arm_speed_Gmean</th>
+<th data-quarto-table-cell-role="th">gross__variability__arm_speed_Gstd</th>
+<th data-quarto-table-cell-role="th">gross__magnitude__arm_speed_peak_mean</th>
+<th data-quarto-table-cell-role="th">gross__variability__arm_speed_peak_std</th>
+<th data-quarto-table-cell-role="th">gross__rhythm__arm_speed_peak_n</th>
+<th data-quarto-table-cell-role="th">gross__rhythm__arm_speed_peak_rate</th>
+<th data-quarto-table-cell-role="th">gross__rhythm__arm_speed_mod_depth</th>
+<th data-quarto-table-cell-role="th">gross__magnitude__arm_acc_Gmean</th>
+<th data-quarto-table-cell-role="th">gross__variability__arm_acc_Gstd</th>
+<th data-quarto-table-cell-role="th">gross__magnitude__arm_acc_peak_mean</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">fine__magnitude__flexion_speed_mean</th>
+<th data-quarto-table-cell-role="th">fine__variability__flexion_speed_std</th>
+<th data-quarto-table-cell-role="th">fine__smoothness__flexion_intermittency</th>
+<th data-quarto-table-cell-role="th">fine__coordination__finger_independence</th>
+<th data-quarto-table-cell-role="th">fine__variability__flexion_entropy</th>
+<th data-quarto-table-cell-role="th">fileID</th>
+<th data-quarto-table-cell-role="th">group</th>
+<th data-quarto-table-cell-role="th">groupID</th>
+<th data-quarto-table-cell-role="th">concept</th>
+<th data-quarto-table-cell-role="th">pcnID</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.988597</td>
+<td>1.115608</td>
+<td>2.039553</td>
+<td>1.696880</td>
+<td>5</td>
+<td>1.063830</td>
+<td>1.693361</td>
+<td>4.791073</td>
+<td>4.765058</td>
+<td>9.304419</td>
+<td>...</td>
+<td>1.542318</td>
+<td>0.158707</td>
+<td>25.704056</td>
+<td>0.027205</td>
+<td>2.255878</td>
+<td>GP01_ADLER</td>
+<td>GP01</td>
+<td>Gesture</td>
+<td>ADLER</td>
+<td>GP01</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>0.571581</td>
+<td>0.557563</td>
+<td>1.622492</td>
+<td>0.660918</td>
+<td>4</td>
+<td>0.851064</td>
+<td>1.339041</td>
+<td>3.123783</td>
+<td>3.113301</td>
+<td>7.652372</td>
+<td>...</td>
+<td>0.409589</td>
+<td>0.052382</td>
+<td>26.111546</td>
+<td>0.398712</td>
+<td>2.782619</td>
+<td>GP01_ANSTECKEN</td>
+<td>GP01</td>
+<td>Gesture</td>
+<td>ANSTECKEN</td>
+<td>GP01</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>0.065771</td>
+<td>0.066443</td>
+<td>0.102775</td>
+<td>0.096030</td>
+<td>10</td>
+<td>2.127660</td>
+<td>0.060660</td>
+<td>0.321925</td>
+<td>0.378740</td>
+<td>0.571819</td>
+<td>...</td>
+<td>0.083279</td>
+<td>0.008405</td>
+<td>25.725000</td>
+<td>0.317245</td>
+<td>2.535043</td>
+<td>GP01_ARBEITEN</td>
+<td>GP01</td>
+<td>Gesture</td>
+<td>ARBEITEN</td>
+<td>GP01</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>0.086983</td>
+<td>0.098598</td>
+<td>0.127089</td>
+<td>0.143328</td>
+<td>11</td>
+<td>2.323944</td>
+<td>0.070746</td>
+<td>0.414123</td>
+<td>0.532899</td>
+<td>0.842822</td>
+<td>...</td>
+<td>0.116758</td>
+<td>0.023732</td>
+<td>25.799489</td>
+<td>0.204966</td>
+<td>2.255708</td>
+<td>GP01_ARGUMENTIEREN</td>
+<td>GP01</td>
+<td>Gesture</td>
+<td>ARGUMENTIEREN</td>
+<td>GP01</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>1.156976</td>
+<td>0.871446</td>
+<td>2.895596</td>
+<td>1.038164</td>
+<td>5</td>
+<td>1.056338</td>
+<td>2.382905</td>
+<td>5.969761</td>
+<td>5.914628</td>
+<td>14.204686</td>
+<td>...</td>
+<td>0.917345</td>
+<td>0.116299</td>
+<td>26.428207</td>
+<td>0.198818</td>
+<td>2.561887</td>
+<td>GP01_BLITZ</td>
+<td>GP01</td>
+<td>Gesture</td>
+<td>BLITZ</td>
+<td>GP01</td>
+</tr>
+</tbody>
+</table>
+
+<p>5 rows × 59 columns</p>
+</div>
+</div>
+</div>
+<div id="d38833a2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check missing values</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>nan_pct <span class="op">=</span> features_df.isna().mean().mul(<span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">1</span>).sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"features &gt;50% NaN (check names in §0):"</span>)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(nan_pct[nan_pct <span class="op">&gt;</span> <span class="dv">50</span>])</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove gross__rhythm__band2_peak_freq_totalarm</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[<span class="st">"gross__rhythm__band2_peak_freq_totalarm"</span>])</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co"># also remove all columns containing *coverage_totalarm (they are just for checking)</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[c <span class="cf">for</span> c <span class="kw">in</span> features_df.columns <span class="cf">if</span> <span class="st">"coverage_totalarm"</span> <span class="kw">in</span> c])</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co"># and gross__rhythm__clip_dur_s_totalarm</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>features_df <span class="op">=</span> features_df.drop(columns<span class="op">=</span>[<span class="st">"gross__rhythm__clip_dur_s_totalarm"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>features &gt;50% NaN (check names in §0):
+gross__rhythm__band3_peak_freq_totalarm    70.9
+gross__rhythm__band2_peak_freq_totalarm    54.2
+dtype: float64</code></pre>
+</div>
+</div>
+<div id="bd01d690" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>features_df[<span class="st">"pcnID"</span>].value_counts().to_dict()</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>features_df[<span class="st">"groupID"</span>].value_counts().to_dict()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>{'Gesture': 295, 'Learner_2': 264, 'Learner_1': 252, 'Sign': 250}</code></pre>
+</div>
+</div>
+<div id="9f601363" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only those sampled within no-concept randomization</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>noconcept <span class="op">=</span> pd.read_csv(os.path.join(datasetsfolder, <span class="st">'sampled_files_noconcept.csv'</span>), index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>noconcept[<span class="st">'filename'</span>] <span class="op">=</span> noconcept[<span class="st">'file'</span>].replace(<span class="st">" .mp4"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>noconcept[<span class="st">'filename'</span>] <span class="op">=</span> noconcept[<span class="st">'file'</span>].replace(<span class="st">".mp4"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>features_df_NC <span class="op">=</span> features_df[features_df[<span class="st">'fileID'</span>].isin(noconcept[<span class="st">'filename'</span>])]</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>features_df_NC_clean <span class="op">=</span> features_df_NC[<span class="op">~</span>features_df_NC[<span class="st">'group'</span>].<span class="bu">str</span>.startswith(<span class="st">'LP'</span>)]</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>features_df_NC_clean.to_csv(os.path.join(datasetsfolder, <span class="st">"sapiens_features_noconcept_noLP.csv"</span>), index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="649669dd" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>features_df_NC_clean[<span class="st">"groupID"</span>].value_counts().to_dict()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<pre><code>{'Gesture': 250, 'Sign': 250, 'Learner_1': 250, 'Learner_2': 250}</code></pre>
+</div>
+</div>
+<p>Check if we have all files from sampling file</p>
+<div id="b8661dc7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, glob</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>sampled_csv <span class="op">=</span> os.path.join(curfolder, <span class="st">"Datasets"</span>, <span class="st">"sampled_files_noconcept.csv"</span>)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>kin_folder  <span class="op">=</span> os.path.join(curfolder, <span class="st">"Sapiens_Processed"</span>)      <span class="co"># folder with *_kinematics.csv</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>suffix      <span class="op">=</span> <span class="st">"_kinematics.csv"</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>sampled <span class="op">=</span> pd.read_csv(sampled_csv, index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of those which pcnID contains LP (these we excluded)</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>sampled <span class="op">=</span> sampled[<span class="op">~</span>sampled[<span class="st">"pcnID"</span>].<span class="bu">str</span>.contains(<span class="st">"LP"</span>)]</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>sampled[<span class="st">"stem"</span>] <span class="op">=</span> sampled[<span class="st">"file"</span>].<span class="bu">str</span>.replace(<span class="vs">r"</span><span class="ch">\.</span><span class="vs">mp4</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>kin_stems <span class="op">=</span> {os.path.basename(p)[: <span class="op">-</span><span class="bu">len</span>(suffix)]</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> p <span class="kw">in</span> glob.glob(os.path.join(kin_folder, <span class="st">"**"</span>, <span class="ss">f"*</span><span class="sc">{</span>suffix<span class="sc">}</span><span class="ss">"</span>), recursive<span class="op">=</span><span class="va">True</span>)}</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>missing <span class="op">=</span> sampled[<span class="op">~</span>sampled[<span class="st">"stem"</span>].isin(kin_stems)]</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(missing)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(sampled)<span class="sc">}</span><span class="ss"> sampled files have no kinematics file"</span>)</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>missing[[<span class="st">"group"</span>, <span class="st">"pcnID"</span>, <span class="st">"file"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0 of 1000 sampled files have no kinematics file</code></pre>
+</div>
+</div>
+</section>
+<section id="cross-correlation" class="level2">
+<h2 class="anchored" data-anchor-id="cross-correlation">6 Cross-correlation</h2>
+<p>Let’s also check correlation between individual features.</p>
+<div id="3d457979" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>corr <span class="op">=</span> features_df_NC_clean.select_dtypes(<span class="st">'number'</span>).corr()</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">16</span>, <span class="dv">10</span>))</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>sns.heatmap(corr, annot<span class="op">=</span><span class="va">False</span>, cmap<span class="op">=</span><span class="st">'coolwarm'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="3_FeatureExtract_Sapiens_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There are some strong correlations in the dataset, but because (i) we use Principal Component Analysis that re-organizes the features into orthogonal (uncorrelated) dimensions, and (ii) we are not primarily interested in detecting single best feature, we will keep all features in</p>
+</section>
+<section id="references" class="level2">
+
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-pouwSystematicInvestigationGesture2021a" class="csl-entry" role="listitem">
+Pouw, Wim, Mark Dingemanse, Yasamin Motamedi, and Aslı Özyürek. 2021. <span>“A Systematic Investigation of Gesture Kinematics in Evolving Manual Languages in the Lab.”</span> <em>Cognitive Science</em> 45 (7): e13014. <a href="https://doi.org/10.1111/cogs.13014">https://doi.org/10.1111/cogs.13014</a>.
+</div>
+<div id="ref-pouwQuasirhythmicFeaturesHanda" class="csl-entry" role="listitem">
+Pouw, Wim, Jessica J. Jaramillo, Aslı Özyürek, and James A. Dixon. 2020. <span>“Quasi-Rhythmic Features of Hand Gestures Show Unique Modulations Within Languages: <span>Evidence</span> from Bilingual Speakers.”</span> In <em>Proceedings of the 7th Gesture and Speech in Interaction Conference (<span>GESPIN</span> 2020)</em>.
+</div>
+<div id="ref-yinAmericanSignLanguage2024" class="csl-entry" role="listitem">
+Yin, Kayo, Terry Regier, and Dan Klein. 2024. <span>“<span>American Sign Language</span> Handshapes Reflect Pressures for Communicative Efficiency.”</span> In <em>Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)</em>, edited by Lun-Wei Ku, Andre Martins, and Vivek Srikumar, 15715–24. Bangkok, Thailand: Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/2024.acl-long.839">https://doi.org/10.18653/v1/2024.acl-long.839</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

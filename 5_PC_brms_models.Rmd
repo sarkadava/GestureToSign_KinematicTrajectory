@@ -1,10 +1,11 @@
 ---
 title: "Analysis II: Bayesian multilevel models on Principal Components (1-5)"
-output:
-  html_document:
+format:
+  html:
     toc: true
-    toc_float: true
-    code_folding: show
+    toc-location: right
+execute: 
+  freeze: auto
 ---
 
 ## Overview
@@ -19,7 +20,10 @@ The main comparisons include (all in SD units, net of speaker & item):
 - **gesture vs native sign** — `conventionalization`, and more broadly, `gesture_vs_all_signers`.
 - **learner1 – learner2 – signer progression** — mainly mean(L1, L2) vs native signers, additionaly also `naive_vs_beginner` (L1 vs L2, within-subject), `beginner_vs_native` (L2 vs Sign), and mean(L1)
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
+#| code-fold: true
+#| code-summary: Code to prepare the environment
+
 knitr::opts_chunk$set(
 	echo = TRUE,
 	message = FALSE,
@@ -337,7 +341,8 @@ ggplot(plot_df, aes(estimate, pc)) +
   )
 
 ```
-Make it more focused for the paper
+
+More focused for the paper
 
 ```{r}
 
@@ -434,7 +439,7 @@ coefs %>%
 
 ### Model checks
 
-```{r pp-loo, fig.width = 7, fig.height = 4}
+```{r loo, eval=FALSE}
 # posterior predictive + LOO for every fit; collect Pareto-k warnings
 loo_tab <- imap_dfr(runs, function(run, i) {
   imap_dfr(run$fits, function(fit, comp) {
@@ -446,6 +451,10 @@ loo_tab <- imap_dfr(runs, function(run, i) {
   })
 })
 loo_tab %>% arrange(desc(n_pareto_k_gt_0.7)) %>% mutate(across(where(is.numeric), ~round(.x, 1)))
+```
+
+
+```{r pp, fig.width = 7, fig.height = 4 }
 
 pp_check(res_pca$fits[[ res_pca$comp_cols[1] ]], ndraws = 100)
 ```
@@ -487,7 +496,7 @@ interpretation
 
 ### Save tidy outputs for the manuscript
 
-```{r save}
+```{r save, eval=FALSE}
 dir.create("Results", showWarnings = FALSE)
 write_csv(coefs,          "results/comparisons_by_component.csv")
 write_csv(conv,           "results/convergence.csv")
@@ -793,7 +802,7 @@ ggplot(plot_df_sign, aes(estimate, pc)) +
 
 ### Model check 
 
-```{r pp-loo sign-only, fig.width = 7, fig.height = 4}
+```{r loo sign-only, fig.width = 7, fig.height = 4, eval=FALSE}
 # posterior predictive + LOO for every fit; collect Pareto-k warnings
 loo_tab <- imap_dfr(run_sign, function(run, i) {
   imap_dfr(run$fits, function(fit, comp) {
@@ -805,7 +814,10 @@ loo_tab <- imap_dfr(run_sign, function(run, i) {
   })
 })
 loo_tab %>% arrange(desc(n_pareto_k_gt_0.7)) %>% mutate(across(where(is.numeric), ~round(.x, 1)))
+```
 
+
+```{r pp sign-only, fig.width = 7, fig.height = 4}
 pp_check(res_sign$fits[[ res_sign$comp_cols[1] ]], ndraws = 100)
 ```
 
@@ -852,7 +864,7 @@ interpretation_sign
 
 ### Save it
 
-```{r}
+```{r eval=FALSE}
 
 write_csv(coefs_sign,          "results/comparisons_by_component_signonly.csv")
 write_csv(conv_sign,           "results/convergence_signonly.csv")
@@ -923,6 +935,8 @@ ggplot(con_sign, aes(mean, tidytext::reorder_within(concept, mean, panel), colou
 ### Groups on multi-axis
 
 ```{r}
+#| code-fold: true
+#| code-summary: Code to prepare plot
 
 pairs <- tribble(
   ~x,        ~y,
@@ -1019,6 +1033,8 @@ ggsave("plots/pc_pairs_grid_pooled_all.png", pairs_grid,
 
 
 ```{r table-setup, cache = FALSE}
+#| code-fold: true
+#| code-summary: Function to prepare table
 
 dom_levels <- c("all", "gross", "fine")
 dom_lab    <- c(all = "All features", gross = "Gross motor", fine = "Fine motor")
@@ -1245,6 +1261,8 @@ traj_map <- function(bases, title, file) {
 ### Groups on 1D axis
 
 ```{r}
+#| code-fold: true
+#| code-summary: Code to prepare plot
 
 comps_1d <- paste0("all_PC", 1:4)             
 
@@ -1339,7 +1357,7 @@ ggsave("plots/group_positions_1d.png", p_1d, width = 9, height = 6, dpi = 300, b
 
 ### Table 1 · Pooled vs sign-only (all features)
 
-```{r table-pooled-vs-signonly, cache = FALSE}
+```{r table-pooled-vs-signonly, cache = FALSE, eval=FALSE}
 dim_table(
   tribble(~basis,     ~domain, ~block,
           "pca",      "all",   "Pooled PCA: gesturers, learners, natives",
@@ -1350,7 +1368,7 @@ dim_table(
 
 ### Table 2 · Pooled: PCA on all vs gross vs fine features
 
-```{r table-domains-pooled, cache = FALSE}
+```{r table-domains-pooled, cache = FALSE, eval=FALSE}
 dim_table(
   tibble(basis = "pca", domain = dom_levels,
          block = paste0("Pooled PCA on ", tolower(dom_lab[dom_levels]))),
@@ -1361,7 +1379,7 @@ dim_table(
 
 ### Table 3 · Sign-only: PCA on all vs gross vs fine features
 
-```{r table-domains-signonly, cache = FALSE}
+```{r table-domains-signonly, cache = FALSE, eval=FALSE}
 dim_table(
   tibble(basis = "signonly", domain = dom_levels,
          block = paste0("Sign-only PCA on ", tolower(dom_lab[dom_levels]))),
@@ -1371,194 +1389,9 @@ dim_table(
 ```
 
 
-### Table 4 - all together
-```{r table-replication, cache = FALSE}
-ref_key <- tibble(basis = "pca", domain = "all")
-
-rep_targets <- tribble(
-  ~col,                 ~basis,     ~domain, ~col_lab,
-  "rep_pca_gross",      "pca",      "gross", "Gross",
-  "rep_pca_fine",       "pca",      "fine",  "Fine",
-  "rep_signonly_all",   "signonly", "all",   "All",
-  "rep_signonly_gross", "signonly", "gross", "Gross",
-  "rep_signonly_fine",  "signonly", "fine",  "Fine"
-)
-
-# all six pcas
-load_all <- pmap_dfr(
-  bind_rows(ref_key, select(rep_targets, basis, domain)),
-  function(basis, domain)
-    read_loadings(basis, domain) %>%
-      mutate(basis = .env$basis, domain = .env$domain)
-) %>%
-  mutate(feat_domain = str_extract(variable, "^[a-z]+"),   # "gross" / "fine"
-         sgn         = sign(loading_sign))
-
-l50     <- filter(load_all, within_50pct)
-ref_l50 <- semi_join(l50, ref_key, by = c("basis", "domain"))
-
-ref_comps <- coefs_all %>%
-  semi_join(ref_key, by = c("basis", "domain")) %>%
-  distinct(component) %>% pull(component)
-ref_comps <- ref_comps[order(parse_number(dim_of(ref_comps)))]
-
-# match each pooled-all component to a component in each other PCA 
-match_comp <- function(ref_comp, t_basis, t_domain) {
-  ref <- filter(ref_l50, component == ref_comp)
-  if (t_domain != "all") ref <- filter(ref, feat_domain == t_domain)
-  k <- nrow(ref)
-  if (k == 0) return(tibble(status = "no_domain_features"))
-
-  cand <- l50 %>%
-    filter(basis == t_basis, domain == t_domain) %>%
-    inner_join(select(ref, variable, sgn_ref = sgn), by = "variable") %>%
-    group_by(component) %>%
-    summarise(agree = sum(sgn == sgn_ref), flip = sum(sgn == -sgn_ref), .groups = "drop") %>%
-    mutate(n_shared = pmax(agree, flip), flipped = flip > agree) %>%
-    filter(n_shared > k / 2) %>%
-    arrange(desc(n_shared))
-
-  if (nrow(cand) == 0) return(tibble(status = "no_match", k = k))
-  slice(cand, 1) %>%
-    transmute(status = "match", match_comp = component, n_shared, k, flipped)
-}
-
-rep_matches <- expand_grid(ref_comp = ref_comps, rep_targets) %>%
-  mutate(res = pmap(list(ref_comp, basis, domain), match_comp)) %>%
-  unnest(res)
-
-rep_matches %>%                                   # sanity check of the mapping
-  select(ref_comp, basis, domain, status, match_comp, n_shared, k, flipped) %>%
-  print(n = Inf)
-
-# check / cross per contrast
-rep_symbol <- function(est_ref, rel_ref, est, rel) {
-  case_when(
-    is.na(est)                                 ~ "–",
-    rel_ref & rel & sign(est) == sign(est_ref) ~ "<span style='color:#1b7a3a'>✓</span>",
-    rel_ref                                    ~ "<span style='color:#b3261e'>✗</span>",
-    rel                                        ~ "<span style='color:#1f5fa8'>&#43;</span>",
-    TRUE                                       ~ "·"
-  )
-}
-
-ref_con <- coefs_all %>%
-  semi_join(ref_key, by = c("basis", "domain")) %>%
-  select(ref_comp = component, contrast, est_ref = estimate, rel_ref = credible)
-
-rep_cells <- rep_matches %>%
-  filter(status == "match") %>%
-  expand_grid(contrast = contr_all) %>%
-  left_join(coefs_all %>%
-              select(basis, domain, match_comp = component, contrast, estimate, rel = credible),
-            by = c("basis", "domain", "match_comp", "contrast")) %>%
-  left_join(ref_con, by = c("ref_comp", "contrast")) %>%
-  mutate(estimate = if_else(flipped, -estimate, estimate),
-         rel_ref  = coalesce(rel_ref, FALSE),
-         contrast = factor(contrast, levels = contr_all),
-         sym      = rep_symbol(est_ref, rel_ref, estimate, rel)) %>%
-  arrange(ref_comp, col, contrast) %>%
-  group_by(ref_comp, col, match_comp, n_shared, k, flipped) %>%
-  summarise(syms = paste(sym, collapse = " "), .groups = "drop") %>%
-  mutate(cell = sprintf(
-    "%s%s <small>(%d/%d)</small><br><span style='font-family:monospace'>%s</span>",
-    dim_of(match_comp), if_else(flipped, " (−)", ""), n_shared, k, syms)) %>%
-  select(ref_comp, col, cell) %>%
-  bind_rows(rep_matches %>%
-              filter(status != "match") %>%
-              transmute(ref_comp, col,
-                        cell = if_else(status == "no_domain_features",
-                                       "<span style='color:#999'>n/a</span>", "—"))) %>%
-  pivot_wider(names_from = col, values_from = cell) %>%
-  rename(component = ref_comp)
-
-# pooled-all columns
-ref_var <- var_all %>%
-  semi_join(ref_key, by = c("basis", "domain")) %>%
-  transmute(component = paste0(domain, "_PC", PC),
-            variance  = sprintf("%.1f%%<br>[%.1f, %.1f]<br><small>cum. %.0f%%</small>",
-                                100 * var_exp, 100 * var_low, 100 * var_high, 100 * cum_var))
-
-ref_feat <- semi_join(load_all, ref_key, by = c("basis", "domain")) %>%
-  add_count(component, name = "n_sig") %>%
-  filter(within_50pct) %>%
-  arrange(component, desc(share)) %>%
-  group_by(component, n_sig) %>%
-  summarise(n_top = n(),
-            features = paste0(if_else(loading_sign > 0, "&#43;", "−"), " ", pretty_feat(variable),
-                              " (", round(100 * share), "%)", collapse = "<br>"),
-            .groups = "drop") %>%
-  transmute(component,
-            features = paste0(features, "<br><small><i>", n_top, " of ", n_sig,
-                              " significant features</i></small>"))
-
-ref_con_tab <- coefs_all %>%
-  semi_join(ref_key, by = c("basis", "domain")) %>%
-  mutate(cell = sprintf("%s%.2f<br>[%.2f, %.2f]%s<br><small>pd = %.3f</small>",
-                        if_else(credible, "<b>", ""), estimate, .lower, .upper,
-                        if_else(credible, "</b>", ""), pd)) %>%
-  select(component, contrast, cell) %>%
-  pivot_wider(names_from = contrast, values_from = cell)
-
-ref_diag <- conv_all %>%
-  semi_join(ref_key, by = c("basis", "domain")) %>%
-  transmute(component,
-            diag = sprintf("%.3f<br>%.0f<br>%d", max_rhat, min_ess_bulk, as.integer(n_divergent)))
-
-rep_tab <- tibble(component = ref_comps) %>%
-  left_join(filter(pc_labels, basis == "pca") %>% select(component, label), by = "component") %>%
-  left_join(ref_var,     by = "component") %>%
-  left_join(ref_feat,    by = "component") %>%
-  left_join(ref_con_tab, by = "component") %>%
-  left_join(rep_cells,   by = "component") %>%
-  left_join(ref_diag,    by = "component") %>%
-  mutate(Dim   = dim_of(component),
-         block = paste0("Pooled PCA on all features (", n_info("pca", "all"), ")"))
-
-contr_rep <- contr_all[contr_all %in% names(rep_tab)]
-
-# gt table
-gt_rep <- rep_tab %>%
-  select(block, Dim, label, variance, features, all_of(contr_rep),
-         all_of(rep_targets$col), diag) %>%
-  gt(groupname_col = "block") %>%
-  tab_header(title = "Pooled-all kinematic dimensions and their replication across domains and samples") %>%
-  cols_label(.list = c(list(Dim = "Dim.", label = "Interpretation",
-                            variance = html("Variance<br>explained"),
-                            features = html("Features up to 50%<br>of index loading"),
-                            diag     = html("R̂ / ESS /<br>div.")),
-                       contr_lab[contr_rep],
-                       setNames(as.list(rep_targets$col_lab), rep_targets$col))) %>%
-  tab_spanner("Dimension", columns = c(Dim, label, variance, features)) %>%
-  tab_spanner("Group comparisons: estimate [95% CrI], SD units", columns = all_of(contr_rep)) %>%
-  tab_spanner("Replication: pooled",    columns = c(rep_pca_gross, rep_pca_fine)) %>%
-  tab_spanner("Replication: sign-only", columns = c(rep_signonly_all, rep_signonly_gross, rep_signonly_fine)) %>%
-  fmt_markdown(columns = c(variance, features, all_of(contr_rep), all_of(rep_targets$col), diag)) %>%
-  sub_missing(missing_text = "—") %>%
-  cols_width(features ~ px(260), label ~ px(140), starts_with("rep_") ~ px(95)) %>%
-  tab_style(style = cell_text(size = px(11)), locations = cells_body()) %>%
-  tab_style(style = cell_text(weight = "bold"), locations = cells_row_groups())
-
-note_rep <- paste(
-  "**Replication.** For each additional PCA, the corresponding component is the one containing, with consistent sign,",
-  "the majority of the pooled-all dimension’s features up to 50% of index loading that belong to that domain",
-  "(shared/total in brackets; for mixed dimensions the gross and fine parts are matched separately;",
-  "(−) = sign-reflected component, estimates flipped accordingly).",
-  "Symbols follow the contrast columns (conventionalization · gesture–native · naive–beginner · beginner–native · learner–native):",
-  "✓ = credible in pooled-all and replicated in the same direction; ✗ = credible in pooled-all, not replicated;",
-  "+ = credible only in this PCA; · = credible in neither; – = not estimable (no gesturers in the sign-only sample).",
-  "— = no corresponding component; n/a = the domain contains none of the dimension’s features.",
-  "See Tables 1–3 for the estimates of the matched components.")
-
-for (n in c(note_rep, note_domain, notes_base)) gt_rep <- tab_source_note(gt_rep, md(n))
-
-gtsave(gt_rep, "results/table5_replication.html")
-gt_rep
-```
-
 ## Prepare values for direct report in Manuscript
 
-```{r}
+```{r eval=FALSE}
 
 dir.create("results", showWarnings = FALSE)
 

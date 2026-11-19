@@ -1,5 +1,5 @@
 ---
-title: "GTST title
+title: "From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language"
 subtitle: Supplementary Material
 author:
   - name: Šárka Kadavá
@@ -34,15 +34,13 @@ format:
   html:
     code-overflow: wrap
     code-width: 1200  # Adjust the width in pixels
-toc: true
-toc-depth: 4
-toc-expand: 2
-toc-title: Contents
+    toc: true
+    toc-depth: 4
+    toc-expand: 2
+    toc-title: Contents
 ---
 
-This website documents data processing pipeline developed for the study **TITLE**. The study resulted from a short-term collaboration between two projects: [**On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)**](https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/){target="_blank"} and **GTST**. The pipeline covers every step from raw data processing to feature extraction and analysis.
-
-**some example from data**
+This website documents data processing pipeline developed for the study **From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language**. The study resulted from a short-term collaboration between two projects: [**On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)**](https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/){target="_blank"} and **GTST**. The pipeline covers every step from raw data processing to feature extraction and analysis.
 
 The repository associated with this project can be found on [Github](https://github.com/sarkadava/FLESH_Effort){target="_blank"}.
 
@@ -62,11 +60,10 @@ We only store and share only already pre-processed .csv files. They are availabl
 :::
 
 ## Acknowledgements
-We would like to thank to xxxx
+*Anonymized*
 
 ## Contact
-
-Corresponding author: kadava[at]leibniz-zas[dot]de 
+*Anonymized*
 
 ## How to cite
 
@@ -75,19 +72,4 @@ If you want to use and cite and part of the **coding pipeline**, cite:
 *add citation*
 
 ## Funding and support
-
-<a href="https://vicom.info/" target="_blank">
-  <img src="assets/ViCom.webp" width="110px">
-</a>
-<a href="https://www.dfg.de/" target="_blank">
-  <img src="assets/DFG-logo-blau.svg.png" width="150px">
-</a>
-<a href="https://www.leibniz-zas.de/de/" target="_blank">
-  <img src="assets/logo_leibniz_zas.png" width="150px">
-</a>
-<a href="https://www.ru.nl/en/donders-institute" target="_blank">
-  <img src="assets/donders_logo.svg" width="150px">
-</a>
-<a href="https://www.uni-goettingen.de/en/1.html" target="_blank">
-  <img src="assets/Logo_Uni_G%C3%B6ttingen.png" width="150px">
-</a>
+*Anonymized*
