@@ -41,7 +41,7 @@ format:
     toc-title: Table of Contents
 ---
 
-This website documents data processing pipeline developed for the study **From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language**. The study resulted from a short-term collaboration between two projects: [**On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)**](https://vicom.info/projects/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/){target="_blank"} and [**The Gesture-to-Sign Trajectory: Phonological Parameters in Production and Real-Time Comprehension**](https://vicom.info/project/the-gesture-to-sign-trajectory-phonological-parameters-in-production-and-real-time-comprehension/){target="_blank"}. The pipeline covers every step from raw data processing to feature extraction and analysis.
+This website documents data processing pipeline developed for the study **From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language**. The study resulted from a short-term collaboration between two projects: [On the FLExibility and Stability of Gesture-speecH Coordination (FLESH)](https://vicom.info/project/on-the-flexibility-and-stability-of-gesture-speech-coordination-flesh-evidence-from-production-comprehension-and-imitation/){target="_blank"} and [The Gesture-to-Sign Trajectory: Phonological Parameters in Production and Real-Time Comprehension](https://vicom.info/project/the-gesture-to-sign-trajectory-phonological-parameters-in-production-and-real-time-comprehension/){target="_blank"}. The pipeline covers every step from raw data processing to feature extraction and analysis.
 
 The repository associated with this project can be found on [Github](https://github.com/sarkadava/GestureToSign_KinematicTrajectory){target="_blank"}.
 
@@ -61,11 +61,8 @@ Section F presents supplementary results. Note that in this workflow, each step 
 We only store and share only already pre-processed .csv files. They are available in the Github repository. If you are interested in the raw data, contact Door Spruijt.
 :::
 
-## Contact
-*Anonymized*
-
 ## How to cite
 
 If you want to use and cite and part of the **coding pipeline**, cite:
 
-*add citation*
+Kadavá, Š. (2026). Supplementary Material to the project From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language (Version 1.0.0) [Computer software]. [https://github.com/sarkadava/GestureToSign_KinematicTrajectory](https://github.com/sarkadava/GestureToSign_KinematicTrajectory)
