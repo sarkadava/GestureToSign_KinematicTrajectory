@@ -14,18 +14,11 @@
     "text": "Pipeline Overview\nThis study builds on multistep pipeline that serves to:\n\nprepare videos for processing (A)\nperform motion tracking (B)\nprocess resulting time series (C)\nextract relevant features (D)\nanalyze with regards to research questions (E)\n\nSection F presents supplementary results. Note that in this workflow, each step builds on the previous one. However, it is possible to use parts of the workflow for different purposes. Section F presents extended version of results.\n\n\n\n\n\n\nNote\n\n\n\nWe only store and share only already pre-processed .csv files. They are available in the Github repository. If you are interested in the raw data, contact Door Spruijt."
   },
   {
-    "objectID": "index.html#contact",
-    "href": "index.html#contact",
-    "title": "From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language",
-    "section": "Contact",
-    "text": "Contact\nAnonymized"
-  },
-  {
     "objectID": "index.html#how-to-cite",
     "href": "index.html#how-to-cite",
     "title": "From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language",
     "section": "How to cite",
-    "text": "How to cite\nIf you want to use and cite and part of the coding pipeline, cite:\nadd citation"
+    "text": "How to cite\nIf you want to use and cite and part of the coding pipeline, cite:\nKadavá, Š. (2026). Supplementary Material to the project From naive to native form: Shared kinematic signatures of conventionalization and acquisition in manual language (Version 1.0.0) [Computer software]. https://github.com/sarkadava/GestureToSign_KinematicTrajectory"
   },
   {
     "objectID": "4_PCA_featureDimensions.html",
